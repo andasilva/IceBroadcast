@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/ressources">
+        <file>medias/qss/default.qss</file>
+        <file>medias/images/dashboard.png</file>
+        <file>medias/images/music.png</file>
+        <file>medias/images/background_hover.png</file>
+        <file>medias/images/live_audio.png</file>
+        <file>medias/images/settings.png</file>
+        <file>medias/images/live_tv.png</file>
+        <file>medias/images/dashboard_selected.png</file>
+        <file>medias/images/settings_selected.png</file>
+        <file>medias/images/live_audio_selected.png</file>
+        <file>medias/images/live_tv_selected.png</file>
+        <file>medias/images/music_selected.png</file>
+        <file>medias/images/icon_menu.png</file>
+    </qresource>
+</RCC>
