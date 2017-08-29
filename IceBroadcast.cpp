@@ -11,8 +11,6 @@ IceBroadcast::IceBroadcast(QWidget *parent)
     QString styleSheet = QLatin1String(file.readAll());
     setStyleSheet(styleSheet);
 
-    resize(1024,900);
-
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->setSpacing(0);
     mainLayout->setMargin(0);
@@ -43,8 +41,8 @@ IceBroadcast::IceBroadcast(QWidget *parent)
     settingsWindow->hide();
 
     //ONly for test
-    ControleurAudio& audioControler = ControleurAudio::getInstance();
-    audioControler.connectToIcecastServer();
+    /*ControleurAudio& audioControler = ControleurAudio::getInstance();
+    audioControler.connectToIcecastServer();*/
 }
 
 void IceBroadcast::showWidgetWindow(int idButton)

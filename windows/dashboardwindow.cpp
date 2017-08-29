@@ -3,5 +3,7 @@
 
 DashboardWindow::DashboardWindow(QWidget *parent) : QWidget(parent)
 {
-    new QLabel("DashBoard Window", this);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(new QLabel("Logo Here"));
 }
