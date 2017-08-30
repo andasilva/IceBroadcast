@@ -17,11 +17,16 @@ public:
 
     QLineEdit *textServerAdress, *textUsername, *textPassword, *textMountpoint, *textPort;
 
+    QComboBox *listAudioInput, *listVideoInput, *listTheme, *listAudioOuput;
+
     QPushButton *buttonSave;
+
+    QSettings *settings;
 
 signals:
 
 public slots:
+    void saveSettings();
 };
 
 #endif // SETTINGSWINDOW_H
