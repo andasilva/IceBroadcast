@@ -41,8 +41,8 @@ IceBroadcast::IceBroadcast(QWidget *parent)
     settingsWindow->hide();
 
     //ONly for test
-    /*ControleurAudio& audioControler = ControleurAudio::getInstance();
-    audioControler.connectToIcecastServer();*/
+    ControleurAudio& audioControler = ControleurAudio::getInstance();
+    audioControler.connectToIcecastServer();
 }
 
 void IceBroadcast::showWidgetWindow(int idButton)

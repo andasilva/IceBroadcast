@@ -30,7 +30,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     if(settings->value("username").isValid())
         textUsername->setText(settings->value("username").toString());
     textPassword = new QLineEdit;
-    textPassword->setEchoMode(QLineEdit::Password);
+    //textPassword->setEchoMode(QLineEdit::Password);
     if(settings->value("password").isValid())
         textPassword->setText(settings->value("password").toString());
     textMountpoint = new QLineEdit;

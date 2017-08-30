@@ -18,6 +18,7 @@ public:
 private:
     ControleurAudio(QObject *parent=0);
     QNetworkAccessManager *networkAccessManager;
+    shout_t *connexion;
 
 public slots:
     void resultOfConnection(QNetworkReply *reply);
