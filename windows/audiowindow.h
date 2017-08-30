@@ -3,9 +3,6 @@
 
 #include <QtWidgets>
 
-class QTableWidget;
-class QLCDNumber;
-
 class AudioWindow : public QWidget
 {
     Q_OBJECT
@@ -22,8 +19,11 @@ private:
     QPushButton* buttonNext;
 
     QListWidget* listPlaylist;
-    QLCDNumber *time;
-    QTableWidget *tableMusic;
+    QLCDNumber* time;
+    QTableWidget* tableMusic;
+    QSlider* slider;
+
+    QLabel* labelPlaylist;
 
     void setupUi();
 signals:

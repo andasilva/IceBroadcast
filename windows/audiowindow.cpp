@@ -20,6 +20,13 @@ void AudioWindow::setupUi()
     buttonAddSong = new QPushButton(tr("Add Song"));
     buttonRemoveSong = new QPushButton(tr("Remove song"));
 
+    slider = new QSlider(Qt::Horizontal);
+    time = new QLCDNumber();
+    time->setDigitCount(5);
+    time->display(QString("00:00"));
+
+    labelPlaylist = new QLabel(tr("Playlists"));
+
     QStringList headers;
     headers << tr("Artist") << tr("Title") << tr("Album") << tr("Year") << tr("Lenght");
 
@@ -31,6 +38,7 @@ void AudioWindow::setupUi()
 
     //Playlist layout
     QVBoxLayout *playlistLayout = new QVBoxLayout;
+    playlistLayout->addWidget(labelPlaylist);
     playlistLayout->addWidget(listPlaylist);
     playlistLayout->addWidget(buttonAddPlaylist);
     playlistLayout->addWidget(buttonRemovePlaylist);
@@ -40,10 +48,14 @@ void AudioWindow::setupUi()
     topActionsLayout->addWidget(buttonPrevious);
     topActionsLayout->addWidget(buttonPlayPause);
     topActionsLayout->addWidget(buttonNext);
+    topActionsLayout->addWidget(slider);
+    topActionsLayout->addWidget(time);
 
     QHBoxLayout *bottomActionsLayout = new QHBoxLayout;
+    bottomActionsLayout->addStretch(10);
     bottomActionsLayout->addWidget(buttonAddSong);
     bottomActionsLayout->addWidget(buttonRemoveSong);
+    bottomActionsLayout->addStretch(10);
 
     QVBoxLayout *playerLayout = new QVBoxLayout;
     playerLayout->addLayout(topActionsLayout);
