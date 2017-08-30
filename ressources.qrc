@@ -13,5 +13,6 @@
         <file>medias/images/live_tv_selected.png</file>
         <file>medias/images/music_selected.png</file>
         <file>medias/images/icon_menu.png</file>
+        <file>medias/qss/menu.qss</file>
     </qresource>
 </RCC>

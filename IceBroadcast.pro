@@ -63,3 +63,5 @@ DEPENDPATH += /usr/local/include
 unix:!macx: LIBS += -L$$PWD/../../../../usr/lib/ -lshout
 
 FORMS +=
+
+DISTFILES +=

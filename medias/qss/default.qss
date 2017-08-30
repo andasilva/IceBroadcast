@@ -1,9 +1,3 @@
 QPushButton {
-    background-color: black;
-	border:none;
-}
 
-QPushButton:hover {
-	background-image: url(:/ressources/medias/images/background_hover.png);
 }
-

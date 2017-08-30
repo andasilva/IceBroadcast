@@ -1,7 +1,10 @@
 #ifndef AUDIOWINDOW_H
 #define AUDIOWINDOW_H
 
-#include <QWidget>
+#include <QtWidgets>
+
+class QTableWidget;
+class QLCDNumber;
 
 class AudioWindow : public QWidget
 {
@@ -9,6 +12,20 @@ class AudioWindow : public QWidget
 public:
     explicit AudioWindow(QWidget *parent = 0);
 
+private:
+    QPushButton* buttonAddPlaylist;
+    QPushButton* buttonRemovePlaylist;
+    QPushButton* buttonAddSong;
+    QPushButton* buttonRemoveSong;
+    QPushButton* buttonPlayPause;
+    QPushButton* buttonPrevious;
+    QPushButton* buttonNext;
+
+    QListWidget* listPlaylist;
+    QLCDNumber *time;
+    QTableWidget *tableMusic;
+
+    void setupUi();
 signals:
 
 public slots:
