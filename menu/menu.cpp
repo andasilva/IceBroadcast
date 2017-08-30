@@ -4,6 +4,12 @@
 Menu::Menu(QWidget *parent)
     : QWidget(parent)
 {
+    // Load StyleSheet
+    QFile file(":/ressources/medias/qss/menu.qss");
+    file.open(QFile::ReadOnly);
+    QString styleSheet = QLatin1String(file.readAll());
+    setStyleSheet(styleSheet);
+
     //Menu customisation
     setFixedWidth(widthMenu);
     QPalette pal = palette();
