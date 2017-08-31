@@ -43,6 +43,9 @@ void StreamEngine::connexionToServer()
         qDebug() << resultConnexion;
         break;
     }
+
+    //To test
+
 }
 
 void StreamEngine::checkConnexion()
@@ -52,5 +55,7 @@ void StreamEngine::checkConnexion()
         timerCheckConnexion->stop();
     }
 }
+
+
 
 

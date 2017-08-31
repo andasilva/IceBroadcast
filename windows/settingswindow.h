@@ -21,7 +21,7 @@ private:
 
     QComboBox *listAudioInput, *listVideoInput, *listTheme, *listAudioOuput;
 
-    QPushButton *buttonSave;
+    QPushButton *buttonSave, *buttonSelectLogoPath;
 
     QSettings *settings;
 

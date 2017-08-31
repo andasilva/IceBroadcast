@@ -126,11 +126,21 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     /***********************/
     //labels
     labelThemes = new QLabel("Themes:");
+    listTheme = new QComboBox;
+    listTheme->addItem("Dark Theme");
     labelLogoPath = new QLabel("Logo path");
+    buttonSelectLogoPath = new QPushButton(tr("Select file"));
+
     QHBoxLayout *layoutPreferences = new QHBoxLayout;
     layoutPreferences->addWidget(labelThemes);
-    //TODO: list themes
+    layoutPreferences->addWidget(listTheme);
     layoutPreferences->addWidget(labelLogoPath);
+
+
+
+
+    //
+
 
 
     buttonSave = new QPushButton("Save");
@@ -164,6 +174,7 @@ void SettingsWindow::saveSettings()
     settings->setValue("username",textUsername->displayText());
     settings->setValue("password",textPassword->displayText());
     settings->setValue("mountpoint",textMountpoint->displayText());
+    settings->setValue("audioInput",listAudioInput->currentText());
 
 /*
     QMessageBox confirmationMessage;
