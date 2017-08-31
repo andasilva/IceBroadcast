@@ -37,7 +37,8 @@ SOURCES += \
     audio/waveform.cpp \
     audio/playlistmanager.cpp \
     stream/livemanager.cpp \
-    stream/streamengine.cpp
+    stream/streamengine.cpp \
+    stream/workerstream.cpp
     
 HEADERS += \
         IceBroadcast.h \
@@ -54,7 +55,8 @@ HEADERS += \
     audio/waveform.h \
     audio/playlistmanager.h \
     stream/livemanager.h \
-    stream/streamengine.h
+    stream/streamengine.h \
+    stream/workerstream.h
     
 RESOURCES += \
     ressources.qrc
