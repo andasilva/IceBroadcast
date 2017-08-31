@@ -23,6 +23,7 @@ public:
 signals:
 
 public slots:
+    void playLive();
 };
 
 #endif // LIVEAUDIOWINDOW_H

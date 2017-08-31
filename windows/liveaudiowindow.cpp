@@ -57,7 +57,11 @@ void LiveAudioWindow::setupUi()
 
     this->setLayout(mainLayout);
 
-    StreamEngine& streamEngine = StreamEngine::getInstance();
+    connect(buttonStartStop,&QPushButton::clicked,this,&LiveAudioWindow::playLive);
+}
 
-    //connect(buttonStartStop,&QPushButton::clicked,&streamEngine,&StreamEngine::connexionToServer);
+void LiveAudioWindow::playLive()
+{
+    StreamEngine& streamEngine = StreamEngine::getInstance();
+    streamEngine.connexionToServer();
 }
