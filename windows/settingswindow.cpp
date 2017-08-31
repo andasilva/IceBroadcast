@@ -164,6 +164,7 @@ void SettingsWindow::saveSettings()
     settings->setValue("username",textUsername->displayText());
     settings->setValue("password",textPassword->displayText());
     settings->setValue("mountpoint",textMountpoint->displayText());
+
 /*
     QMessageBox confirmationMessage;
     confirmationMessage.setText("Settings Saved");
