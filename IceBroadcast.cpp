@@ -1,6 +1,7 @@
 #include "IceBroadcast.h"
 #include "config.h"
-#include "stream/audio/controleuraudio.h"
+#include "lib/shout.h"
+#include "stream/streamengine.h"
 
 IceBroadcast::IceBroadcast(QWidget *parent)
     : QWidget(parent)
@@ -41,8 +42,9 @@ IceBroadcast::IceBroadcast(QWidget *parent)
     settingsWindow->hide();
 
     //ONly for test
-    ControleurAudio& audioControler = ControleurAudio::getInstance();
-    audioControler.connectToIcecastServer();
+    /*StreamEngine& audioControler = StreamEngine::getInstance();
+    audioControler.connexionToServer();*/
+
 }
 
 void IceBroadcast::showWidgetWindow(int idButton)

@@ -1,4 +1,5 @@
 #include "liveaudiowindow.h"
+#include "stream/streamengine.h"
 
 LiveAudioWindow::LiveAudioWindow(QWidget *parent) : QWidget(parent)
 {
@@ -55,4 +56,8 @@ void LiveAudioWindow::setupUi()
     mainLayout->addLayout(optionsLayout);
 
     this->setLayout(mainLayout);
+
+    StreamEngine& streamEngine = StreamEngine::getInstance();
+
+    //connect(buttonStartStop,&QPushButton::clicked,&streamEngine,&StreamEngine::connexionToServer);
 }

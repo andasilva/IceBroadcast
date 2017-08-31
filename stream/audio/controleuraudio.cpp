@@ -2,7 +2,6 @@
 #include <QtWidgets>
 #include <QtNetwork>
 
-
 ControleurAudio::ControleurAudio(QObject *parent)
     :QObject(parent)
 {
@@ -24,7 +23,7 @@ void ControleurAudio::connectToIcecastServer()
 
     QSettings settings;
 
-    shout_init();
+    //shout_init();
     connexion = shout_new();
     shout_set_user(connexion,settings.value("username").toString().toStdString().c_str());
     shout_set_password(connexion, settings.value("password").toString().toStdString().c_str());
