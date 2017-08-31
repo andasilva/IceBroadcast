@@ -17,6 +17,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
 
     //labels
     labelServerAdress = new QLabel("Server adress:");
+//    labelServerAdress->setFixedWidth(100);
     labelUsername = new QLabel("Username:");
     labelPassword = new QLabel("Password:");
     labelMountpoint = new QLabel("Mountpoint:");
@@ -111,11 +112,11 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     listVideoInput = new QComboBox;
 
     //Get Camera input on computer
-    QList<QByteArray> cameras = QCamera::availableDevices() ;
+    QList<QCameraInfo> cameras = QCameraInfo::availableCameras() ;
 
-    foreach(QByteArray camera, cameras)
+    foreach(const QCameraInfo &cameraInfo, cameras)
     {
-            listVideoInput->addItem(QCamera::deviceDescription(camera)) ;
+            listVideoInput->addItem(cameraInfo.deviceName()) ;
     }
 
     layoutVideo->addWidget(listVideoInput);
@@ -174,7 +175,7 @@ void SettingsWindow::saveSettings()
     settings->setValue("username",textUsername->displayText());
     settings->setValue("password",textPassword->displayText());
     settings->setValue("mountpoint",textMountpoint->displayText());
-    settings->setValue("audioInput",listAudioInput->currentText());
+    settings->setValue("audioInput",listAudioInput->itemData(listAudioInput->currentIndex()));
 
 /*
     QMessageBox confirmationMessage;

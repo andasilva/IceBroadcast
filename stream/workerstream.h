@@ -12,6 +12,7 @@ public:
 signals:
 
 public slots:
+    void stremAudio();
 };
 
 #endif // WORKERSTREAM_H
