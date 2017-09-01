@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network multimediawidgets
+QT       += core gui network multimediawidgets multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -38,7 +38,8 @@ SOURCES += \
     audio/playlistmanager.cpp \
     stream/livemanager.cpp \
     stream/streamengine.cpp \
-    stream/workerstream.cpp
+    stream/workerstream.cpp \
+    audio/audioinfo.cpp
     
 HEADERS += \
         IceBroadcast.h \
@@ -56,7 +57,8 @@ HEADERS += \
     audio/playlistmanager.h \
     stream/livemanager.h \
     stream/streamengine.h \
-    stream/workerstream.h
+    stream/workerstream.h \
+    audio/audioinfo.h
     
 RESOURCES += \
     ressources.qrc
