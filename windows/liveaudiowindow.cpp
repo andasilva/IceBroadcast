@@ -85,7 +85,7 @@ void LiveAudioWindow::initializeAudio()
     m_format.setSampleSize(16);
     m_format.setSampleType(QAudioFormat::SignedInt);
     m_format.setByteOrder(QAudioFormat::LittleEndian);
-    m_format.setCodec("audio/pcm");
+    m_format.setCodec("audio/mp3");
 
     QAudioDeviceInfo info(m_device);
     if (!info.isFormatSupported(m_format))

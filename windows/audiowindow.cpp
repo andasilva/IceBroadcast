@@ -69,4 +69,6 @@ void AudioWindow::setupUi()
 
     this->setLayout(mainLayout);
 
+    //Connections
+
 }

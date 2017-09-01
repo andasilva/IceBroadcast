@@ -38,7 +38,8 @@ SOURCES += \
     audio/playlistmanager.cpp \
     stream/livemanager.cpp \
     stream/streamengine.cpp \
-    audio/audioinfo.cpp
+    audio/audioinfo.cpp \
+    audio/vumeter.cpp
     
 HEADERS += \
         IceBroadcast.h \
@@ -56,7 +57,8 @@ HEADERS += \
     audio/playlistmanager.h \
     stream/livemanager.h \
     stream/streamengine.h \
-    audio/audioinfo.h
+    audio/audioinfo.h \
+    audio/vumeter.h
     
 RESOURCES += \
     ressources.qrc
