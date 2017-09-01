@@ -9,6 +9,7 @@ StreamEngine::StreamEngine(QObject *parent)
     connexion = shout_new();
     isRunning = false;
     timerCheckConnexion = new QTimer(this);
+    threadPlayAudio = new QThread;
     //connect(timerCheckConnexion,&QTimer::timeout,this,&StreamEngine::checkConnexion);
 }
 
@@ -22,13 +23,12 @@ void StreamEngine::connexionToServer()
     qDebug() << "Trying to connect to server...";
     QSettings settings;
 
-    qDebug() << settings.value("username").toString() << settings.value("password") << settings.value("mountpoint") << settings.value("server");
-
     shout_set_user(connexion,settings.value("username").toString().toStdString().c_str());
     shout_set_password(connexion, settings.value("password").toString().toStdString().c_str());
     shout_set_mount(connexion, settings.value("mountpoint").toString().toStdString().c_str());
     shout_set_host(connexion,settings.value("server").toString().toStdString().c_str());
-
+    shout_set_protocol(connexion, SHOUT_PROTOCOL_HTTP);
+    shout_set_format(connexion,SHOUT_FORMAT_MP3);
     int resultConnexion = shout_open(connexion);
     switch(resultConnexion){
     case SHOUTERR_SUCCESS:
@@ -43,9 +43,6 @@ void StreamEngine::connexionToServer()
         qDebug() << resultConnexion;
         break;
     }
-
-    //To test
-
 }
 
 void StreamEngine::checkConnexion()

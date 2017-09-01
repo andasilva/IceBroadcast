@@ -31,7 +31,7 @@ void ControleurAudio::connectToIcecastServer()
     shout_set_mount(connexion, settings.value("mountpoint").toString().toStdString().c_str());
     shout_set_host(connexion,settings.value("server").toString().toStdString().c_str());
 
-    int resultConnexion = shout_open(connexion);
+    /*int resultConnexion = shout_open(connexion);
     switch(resultConnexion){
     case SHOUTERR_NOLOGIN:
         qDebug() << "login error" ;
@@ -39,7 +39,7 @@ void ControleurAudio::connectToIcecastServer()
     default:
         qDebug() << resultConnexion;
         break;
-    }
+    }*/
 }
 
 void ControleurAudio::resultOfConnection(QNetworkReply *reply)

@@ -3,6 +3,7 @@
 
 #include "lib/shout.h"
 #include <QtNetwork>
+#include <QtMultimedia>
 
 class StreamEngine:public QObject
 {
@@ -21,6 +22,8 @@ private:
     shout_t *connexion;
     bool isRunning;
     QTimer* timerCheckConnexion;
+    QFile *mp3File;
+    QThread *threadPlayAudio;
 
 public slots:
     void connexionToServer();

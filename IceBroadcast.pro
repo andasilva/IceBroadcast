@@ -39,6 +39,7 @@ SOURCES += \
     stream/livemanager.cpp \
     stream/streamengine.cpp \
     audio/audioinfo.cpp \
+    stream/workerstream.cpp \
     audio/vumeter.cpp
     
 HEADERS += \
@@ -58,6 +59,7 @@ HEADERS += \
     stream/livemanager.h \
     stream/streamengine.h \
     audio/audioinfo.h \
+    stream/workerstream.h \
     audio/vumeter.h
     
 RESOURCES += \

@@ -17,6 +17,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
 
     //labels
     labelServerAdress = new QLabel("Server adress:");
+//    labelServerAdress->setFixedWidth(100);
     labelUsername = new QLabel("Username:");
     labelPassword = new QLabel("Password:");
     labelMountpoint = new QLabel("Mountpoint:");
@@ -74,19 +75,34 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
 
     QHBoxLayout *layoutAudio = new QHBoxLayout;
     layoutAudio->addWidget(labelAudioInputSource);
-    listAudioInput = new QComboBox;
 
     //Get Input Audio Devices Avaible on computer
+    listAudioInput = new QComboBox;
+
     QList<QAudioDeviceInfo> audioDevicesInput = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
 
-    foreach(QAudioDeviceInfo dev, audioDevicesInput)
-    {
-       listAudioInput->addItem(dev.deviceName());
+    //display all devices and set one as default if saved in settings
+    if(settings->value("audioInput").isValid()){
+        int valueInSettings = 0;
+
+        for(int i = 0; i < audioDevicesInput.length(); i++){
+           QString dev = audioDevicesInput.at(i).deviceName();
+           listAudioInput->addItem(dev);
+           if(!dev.compare(settings->value("audioInput").toString())){
+                valueInSettings = i;
+           }
+        }
+        listAudioInput->setCurrentIndex(valueInSettings);
+    }else{
+        foreach(QAudioDeviceInfo dev, audioDevicesInput)
+        {
+           listAudioInput->addItem(dev.deviceName());
+        }
     }
 
     layoutAudio->addWidget(listAudioInput);
 
-    //Get Outpu Audio devices avaible on computer
+    //Get Output Audio devices avaible on computer
     listAudioOuput = new QComboBox;
     QList<QAudioDeviceInfo> audioDevicesOutput = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
 
@@ -111,11 +127,11 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     listVideoInput = new QComboBox;
 
     //Get Camera input on computer
-    QList<QByteArray> cameras = QCamera::availableDevices() ;
+    QList<QCameraInfo> cameras = QCameraInfo::availableCameras() ;
 
-    foreach(QByteArray camera, cameras)
+    foreach(const QCameraInfo &cameraInfo, cameras)
     {
-            listVideoInput->addItem(QCamera::deviceDescription(camera)) ;
+            listVideoInput->addItem(cameraInfo.deviceName()) ;
     }
 
     layoutVideo->addWidget(listVideoInput);
@@ -128,13 +144,15 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     labelThemes = new QLabel("Themes:");
     listTheme = new QComboBox;
     listTheme->addItem("Dark Theme");
-    labelLogoPath = new QLabel("Logo path");
+    labelLogoPathTitle = new QLabel("Logo path");
+    labelLogoPath = new QLabel();
     buttonSelectLogoPath = new QPushButton(tr("Select file"));
 
     QHBoxLayout *layoutPreferences = new QHBoxLayout;
     layoutPreferences->addWidget(labelThemes);
     layoutPreferences->addWidget(listTheme);
-    layoutPreferences->addWidget(labelLogoPath);
+    layoutPreferences->addWidget(labelLogoPathTitle);
+
 
 
 
