@@ -1,8 +1,9 @@
 #ifndef LIVEAUDIOWINDOW_H
 #define LIVEAUDIOWINDOW_H
 
-#include <QWidget>
 #include <QtWidgets>
+#include <QtMultimedia>
+#include "audio/audioinfo.h"
 
 class LiveAudioWindow : public QWidget
 {
@@ -18,7 +19,18 @@ public:
     QLabel* labelLevel;
     QLabel* labelGain;
 
+    QAudioDeviceInfo m_device;
+    AudioInfo* m_audioInfo;
+    QAudioFormat m_format;
+    QAudioInput* m_audioInput;
+    QIODevice* m_input;
+    bool m_pullMode;
+    QByteArray m_buffer;
+
     void setupUi();
+    void initializeAudio();
+    void createAudioInput();
+    void readMore();
 
 signals:
 
