@@ -15,7 +15,7 @@ private:
     QLabel *labelServerAdress, *labelUsername, *labelPassword, *labelMountpoint, *labelPort;
     QLabel *labelAudioInputSource, *labelAudioOutputSource;
     QLabel *labelVideoInputSource;
-    QLabel *labelThemes, *labelLogoPath;
+    QLabel *labelThemes, *labelLogoPathTitle, *labelLogoPath;
 
     QLineEdit *textServerAdress, *textUsername, *textPassword, *textMountpoint, *textPort;
 
