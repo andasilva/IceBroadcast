@@ -4,6 +4,7 @@
 #include <QtWidgets>
 #include <QtMultimedia>
 #include "audio/audioinfo.h"
+#include "audio/vumeter.h"
 
 class LiveAudioWindow : public QWidget
 {
@@ -18,6 +19,7 @@ public:
     QCheckBox* checkBoxRecord;
     QLabel* labelLevel;
     QLabel* labelGain;
+    VuMeter* vuMeter;
 
     QAudioDeviceInfo m_device;
     AudioInfo* m_audioInfo;
@@ -34,8 +36,9 @@ public:
 
 signals:
 
-public slots:
+private slots:
     void playLive();
+    void refreshDisplay();
 };
 
 #endif // LIVEAUDIOWINDOW_H

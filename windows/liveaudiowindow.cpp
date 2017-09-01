@@ -18,10 +18,11 @@ LiveAudioWindow::LiveAudioWindow(QWidget *parent) : QWidget(parent)
 void LiveAudioWindow::setupUi()
 {
     //Instanciation
-    time = new QLCDNumber();
+    time = new QLCDNumber(this);
     time->setDigitCount(8);
     time->display(QString("00:00:00"));
 
+    vuMeter = new VuMeter(this);
     sliderGain = new QSlider(Qt::Horizontal);
     checkBoxRecord = new QCheckBox(tr("Save live session into a file"));
     labelGain = new QLabel(tr("Gain"));
@@ -40,7 +41,7 @@ void LiveAudioWindow::setupUi()
     labelLevelLayout->addWidget(labelGain);
 
     QHBoxLayout* levelLayout = new QHBoxLayout;
-    levelLayout->addSpacing(200);
+    levelLayout->addWidget(vuMeter);
     levelLayout->addWidget(sliderGain);
 
     QHBoxLayout* actionsLayout = new QHBoxLayout;
@@ -100,7 +101,7 @@ void LiveAudioWindow::initializeAudio()
     }
 
     m_audioInfo  = new AudioInfo(m_format, this);
-    //connect(m_audioInfo, SIGNAL(update()), SLOT(refreshDisplay()));
+    connect(m_audioInfo, SIGNAL(update()), SLOT(refreshDisplay()));
 
     createAudioInput();
 }
@@ -134,6 +135,11 @@ void LiveAudioWindow::readMore()
     {
         m_audioInfo->write(m_buffer.constData(), l);
     }
+}
+
+void LiveAudioWindow::refreshDisplay()
+{
+    vuMeter->setLevel(m_audioInfo->level());
 }
 
 //void LiveAudioWindow::toggleMode()

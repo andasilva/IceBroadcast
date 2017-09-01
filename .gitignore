@@ -37,3 +37,8 @@ Makefile*
 # QtCtreator CMake
 CMakeLists.txt.user*
 
+# Music
+medias/*.mp3
+medias/*.wav
+
+
