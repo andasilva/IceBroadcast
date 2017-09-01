@@ -14,6 +14,7 @@ void AudioWindow::setupUi()
     listPlaylist = new QListWidget();
 
     buttonPlayPause = new QPushButton(tr("Play/Pause"));
+    buttonStop = new QPushButton(tr("Stop"));
     buttonPrevious = new QPushButton(tr("Previous"));
     buttonNext = new QPushButton(tr("Next"));
 
@@ -34,7 +35,7 @@ void AudioWindow::setupUi()
     tableMusic->setHorizontalHeaderLabels(headers);
     tableMusic->setSelectionMode(QAbstractItemView::SingleSelection);
     tableMusic->setSelectionBehavior(QAbstractItemView::SelectRows);
-    //connect(musicTable, SIGNAL(cellPressed(int,int)),this, SLOT(tableClicked(int,int)));
+    //connect(tableMusic, SIGNAL(cellPressed(int,int)),this, SLOT(tableClicked(int,int)));
 
     //Playlist layout
     QVBoxLayout *playlistLayout = new QVBoxLayout;
@@ -46,6 +47,7 @@ void AudioWindow::setupUi()
     //Player layouts
     QHBoxLayout *topActionsLayout = new QHBoxLayout;
     topActionsLayout->addWidget(buttonPrevious);
+    topActionsLayout->addWidget(buttonStop);
     topActionsLayout->addWidget(buttonPlayPause);
     topActionsLayout->addWidget(buttonNext);
     topActionsLayout->addWidget(slider);
@@ -70,5 +72,52 @@ void AudioWindow::setupUi()
     this->setLayout(mainLayout);
 
     //Connections
+    connect(buttonPlayPause, &QPushButton::clicked, this, &AudioWindow::playPausePressed);
+    connect(buttonPrevious, &QPushButton::clicked, this, &AudioWindow::previousPressed);
+    connect(buttonNext, &QPushButton::clicked, this, &AudioWindow::nextPressed);
+    connect(buttonStop, &QPushButton::clicked, this, &AudioWindow::stopPressed);
+    connect(buttonAddPlaylist, &QPushButton::clicked, this, &AudioWindow::addPlaylistPressed);
+    connect(buttonRemovePlaylist, &QPushButton::clicked, this, &AudioWindow::removePlaylistPressed);
+    connect(buttonAddSong, &QPushButton::clicked, this, &AudioWindow::addSongPressed);
+    connect(buttonRemoveSong, &QPushButton::clicked, this, &AudioWindow::removeSongPressed);
+}
+
+void AudioWindow::addSongPressed()
+{
+
+}
+
+void AudioWindow::removeSongPressed()
+{
+
+}
+
+void AudioWindow::addPlaylistPressed()
+{
+
+}
+
+void AudioWindow::removePlaylistPressed()
+{
+
+}
+
+void AudioWindow::playPausePressed()
+{
+
+}
+
+void AudioWindow::stopPressed()
+{
+
+}
+
+void AudioWindow::previousPressed()
+{
+
+}
+
+void AudioWindow::nextPressed()
+{
 
 }

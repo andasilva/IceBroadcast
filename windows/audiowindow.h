@@ -2,6 +2,7 @@
 #define AUDIOWINDOW_H
 
 #include <QtWidgets>
+#include <QtMultimedia>
 
 class AudioWindow : public QWidget
 {
@@ -15,6 +16,7 @@ private:
     QPushButton* buttonAddSong;
     QPushButton* buttonRemoveSong;
     QPushButton* buttonPlayPause;
+    QPushButton* buttonStop;
     QPushButton* buttonPrevious;
     QPushButton* buttonNext;
 
@@ -28,7 +30,16 @@ private:
     void setupUi();
 signals:
 
-public slots:
+private slots:
+    void addSongPressed();
+    void removeSongPressed();
+    void addPlaylistPressed();
+    void removePlaylistPressed();
+    void playPausePressed();
+    void stopPressed();
+    void previousPressed();
+    void nextPressed();
+
 };
 
 #endif // AUDIOWINDOW_H
