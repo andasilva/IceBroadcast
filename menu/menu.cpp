@@ -20,6 +20,7 @@ Menu::Menu(QWidget *parent)
     //Add icon of the menu
     iconMenu = new QLabel(this);
     iconMenu->setPixmap(QPixmap(":/ressources/medias/images/icon_menu.png"));
+    iconMenu->move(0,20);
 
     //Generate buttons
     buttonDashBoard = new ButtonMenu(QString(":/ressources/medias/images/dashboard.png"),QString(":/ressources/medias/images/dashboard_selected.png"),this);

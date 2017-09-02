@@ -3,7 +3,7 @@
 
 
 //Const for the menu
-const int spaceBetweenLogoAndFirstButton = 120;
+const int spaceBetweenLogoAndFirstButton = 130;
 const int sizeHeightButton = 60;
 const int marginBetweenButtons = 10;
 const int widthMenu = 90;

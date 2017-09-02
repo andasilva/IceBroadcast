@@ -44,25 +44,21 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     //layouts
     QVBoxLayout *layoutServer = new QVBoxLayout;
 
-    QHBoxLayout *layoutServerFirstLine = new QHBoxLayout;
-    layoutServerFirstLine->addWidget(labelServerAdress);
-    layoutServerFirstLine->addWidget(textServerAdress);
-    layoutServerFirstLine->addWidget(labelPort);
-    layoutServerFirstLine->addWidget(textPort);
+    QGridLayout *gridLayout = new QGridLayout;
+    gridLayout->addWidget(labelServerAdress,0,0);
+    gridLayout->addWidget(textServerAdress,0,1);
+    gridLayout->addWidget(labelPort,0,2);
+    gridLayout->addWidget(textPort,0,3);
 
-    QHBoxLayout *layoutServerSecondLine = new QHBoxLayout;
-    layoutServerSecondLine->addWidget(labelUsername);
-    layoutServerSecondLine->addWidget(textUsername);
-    layoutServerSecondLine->addWidget(labelPassword);
-    layoutServerSecondLine->addWidget(textPassword);
+    gridLayout->addWidget(labelUsername,1,0);
+    gridLayout->addWidget(textUsername,1,1);
+    gridLayout->addWidget(labelPassword,1,2);
+    gridLayout->addWidget(textPassword,1,3);
 
-    QHBoxLayout *layoutServerThirdLine = new QHBoxLayout;
-    layoutServerThirdLine->addWidget(labelMountpoint);
-    layoutServerThirdLine->addWidget(textMountpoint);
+    gridLayout->addWidget(labelMountpoint,2,0);
+    gridLayout->addWidget(textMountpoint,2,1);
 
-    layoutServer->addLayout(layoutServerFirstLine);
-    layoutServer->addLayout(layoutServerSecondLine);
-    layoutServer->addLayout(layoutServerThirdLine);
+    layoutServer->addLayout(gridLayout);
 
 
     /*****************/
