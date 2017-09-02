@@ -203,6 +203,9 @@ void SettingsWindow::saveSettings()
     settings->setValue("password",textPassword->displayText());
     settings->setValue("mountpoint",textMountpoint->displayText());
     settings->setValue("audioInput",listAudioInput->currentText());
+    settings->setValue("audioOutput",listAudioOuput->currentText());
+    settings->setValue("videoInput",listVideoInput->currentText());
+    settings->setValue("theme",listTheme->currentText());
 
     //Update Logo if necessary
     if(labelLogoPath->text().compare(settings->value("logoPath").toString())){

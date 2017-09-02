@@ -111,7 +111,7 @@ void LiveAudioWindow::processBuffer(const QAudioBuffer& buffer)
     short int pcm_buffer[pcm_size];
 
     for(int i = 0; i < pcm_size ; i++){
-        pcm_buffer[i] = data[i];
+        pcm_buffer[i] = 0;
         qDebug() << data[i];
     }
 

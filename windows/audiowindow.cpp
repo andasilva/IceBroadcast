@@ -4,6 +4,42 @@
 AudioWindow::AudioWindow(QWidget *parent) : QWidget(parent)
 {
     setupUi();
+    loadPlaylistAvaible();
+    connect(listPlaylist,&QListWidget::currentRowChanged,this,&AudioWindow::updateCurrentPlaylist);
+}
+
+void AudioWindow::loadPlaylistAvaible()
+{
+    QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) +".IceBroadcast/playlist/";
+    QDir directory(path);
+
+    //If folder exists then list all the playlist
+    if(directory.exists()){
+        QStringList filter;
+        filter << "*.txt";
+        QStringList listFiles = directory.entryList(filter);
+        if(listFiles.empty())
+            buttonRemovePlaylist->setDisabled(true);
+        else{
+            foreach(QFileInfo file, listFiles){
+                listPlaylist->addItem(file.baseName());
+                listPlaylist->item(0)->setSelected(true);
+                currentPlaylist = 0;
+            }
+            buttonRemovePlaylist->setDisabled(false);
+        }
+
+    }else{
+        directory.mkpath(path);
+        //Create default playlist
+        QFile file(path+"default.txt");
+        if(file.open(QIODevice::ReadWrite)){
+            file.close();
+            listPlaylist->addItem("default");
+            listPlaylist->item(0)->setSelected(true);
+            currentPlaylist = 0;
+        }
+    }
 }
 
 void AudioWindow::setupUi()
@@ -12,6 +48,8 @@ void AudioWindow::setupUi()
     buttonAddPlaylist = new QPushButton(tr("Add Playlist"));
     buttonRemovePlaylist = new QPushButton(tr("RemovePlaylist"));
     listPlaylist = new QListWidget();
+    listPlaylist->setMaximumWidth(200);
+
 
     buttonPlayPause = new QPushButton(tr("Play/Pause"));
     buttonStop = new QPushButton(tr("Stop"));
@@ -26,7 +64,7 @@ void AudioWindow::setupUi()
     time->setDigitCount(5);
     time->display(QString("00:00"));
 
-    labelPlaylist = new QLabel(tr("Playlists"));
+    labelPlaylist = new QLabel(tr("<b>Playlists</b>"));
 
     QStringList headers;
     headers << tr("Artist") << tr("Title") << tr("Album") << tr("Year") << tr("Lenght");
@@ -94,12 +132,36 @@ void AudioWindow::removeSongPressed()
 
 void AudioWindow::addPlaylistPressed()
 {
-
+    bool ok;
+    QString playlistName = QInputDialog::getText(this,tr("Create a playlist"),tr("Playlist name:"),QLineEdit::Normal,"",&ok);
+    if(ok && !playlistName.isEmpty()){
+        QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) + ".IceBroadcast/playlist/" + playlistName + ".txt";
+        if(QFile::exists(path)){
+            qDebug() << "This playlist name already exits...";
+            QMessageBox::warning(this,tr("Duplicate playlist name"),tr("This playlist name already exists... Write another playlist name."),QMessageBox::Ok);
+        }else{
+            QFile file(path);
+            if(file.open(QIODevice::ReadWrite)){
+                file.close();
+                qDebug() << "New playlist created: " << playlistName;
+                listPlaylist->clear();
+                loadPlaylistAvaible();
+            }
+        }
+    }
 }
 
 void AudioWindow::removePlaylistPressed()
 {
+    int response = QMessageBox::question(this,tr("Delete playlist"),tr("Are you sure you want to delete %1 playlist?").arg(listPlaylist->item(currentPlaylist)->text()),QMessageBox::Yes | QMessageBox::No);
 
+    if(response == QMessageBox::Yes){
+        QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) + ".IceBroadcast/playlist/" + listPlaylist->item(currentPlaylist)->text() + ".txt";
+        QFile file(path);
+        file.remove();
+        listPlaylist->clear();
+        loadPlaylistAvaible();
+    }
 }
 
 void AudioWindow::playPausePressed()
@@ -120,4 +182,9 @@ void AudioWindow::previousPressed()
 void AudioWindow::nextPressed()
 {
 
+}
+
+void AudioWindow::updateCurrentPlaylist(int playlistNumber)
+{
+    currentPlaylist = playlistNumber;
 }

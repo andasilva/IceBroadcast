@@ -8,7 +8,6 @@ DashboardWindow::DashboardWindow(QWidget *parent) : QWidget(parent)
 
     //load Logo
     logo = new QLabel(this);
-    logo->setAlignment(Qt::AlignCenter);
     QSettings settings;
     if(settings.value("logoPath").isValid()){
         logo->setPixmap(QPixmap(settings.value("logoPath").toString()));
@@ -18,8 +17,19 @@ DashboardWindow::DashboardWindow(QWidget *parent) : QWidget(parent)
     layoutLogo->addWidget(logo);
     layoutLogo->addStretch();
 
+    //Labels
+    labelServerStatus = new QLabel(tr("Server Status: Offline"));
+    labelMusicBeingPlayed = new QLabel(tr("Currently playing: ------"));
+
+    QVBoxLayout *layoutInfo = new QVBoxLayout;
+    layoutInfo->addWidget(labelServerStatus);
+    layoutInfo->addWidget(labelMusicBeingPlayed);
+
+
     mainLayout->addLayout(layoutLogo);
     mainLayout->setMargin(30);
+    mainLayout->addSpacing(30);
+    mainLayout->addLayout(layoutInfo);
     mainLayout->addStretch();
     setLayout(mainLayout);
 
@@ -34,4 +44,17 @@ void DashboardWindow::setLogo()
 
 
     logo->repaint();
+}
+
+void DashboardWindow::updateServerStatus(bool status)
+{
+    if(status)
+        labelServerStatus->setText("Server Status: Online");
+    else
+        labelServerStatus->setText("Server Status: Offline");
+}
+
+void DashboardWindow::updateMusicBeingPlayed(QString nameSong)
+{
+    labelMusicBeingPlayed->setText("Currently playing: "+ nameSong);
 }

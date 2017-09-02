@@ -27,6 +27,9 @@ private:
 
     QLabel* labelPlaylist;
 
+    int currentPlaylist;
+
+    void loadPlaylistAvaible();
     void setupUi();
 signals:
 
@@ -39,6 +42,8 @@ private slots:
     void stopPressed();
     void previousPressed();
     void nextPressed();
+
+    void updateCurrentPlaylist(int playlistNumber);
 
 };
 

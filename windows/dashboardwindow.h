@@ -11,11 +11,13 @@ public:
     explicit DashboardWindow(QWidget *parent = 0);
 
 private:
-    QLabel *logo;
+    QLabel *logo, *labelMusicBeingPlayed, *labelServerStatus;
 signals:
 
 public slots:
     void setLogo();
+    void updateServerStatus(bool status);
+    void updateMusicBeingPlayed(QString nameSong);
 };
 
 #endif // DASHBOARDWINDOW_H
