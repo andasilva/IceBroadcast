@@ -44,6 +44,8 @@ IceBroadcast::IceBroadcast(QWidget *parent)
     liveTvWindow->hide();
     settingsWindow->hide();
 
+
+    connect(settingsWindow,&SettingsWindow::logoUpdated,dashboardWindow,&DashboardWindow::setLogo);
     //ONly for test
     /*StreamEngine& audioControler = StreamEngine::getInstance();
     audioControler.connexionToServer();*/

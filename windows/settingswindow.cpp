@@ -207,7 +207,14 @@ void SettingsWindow::saveSettings()
     settings->setValue("password",textPassword->displayText());
     settings->setValue("mountpoint",textMountpoint->displayText());
     settings->setValue("audioInput",listAudioInput->currentText());
-    settings->setValue("logoPath",labelLogoPath->text());
+
+    //Update Logo if necessary
+    if(labelLogoPath->text().compare(settings->value("logoPath").toString())){
+        settings->setValue("logoPath",labelLogoPath->text());
+        emit logoUpdated();
+    }
+
+
 
     /*
     QMessageBox confirmationMessage;
@@ -220,16 +227,13 @@ void SettingsWindow::saveSettings()
 
 void SettingsWindow::loadLogoFile()
 {
-    //Open dialog box to choose logo file
+    //Open dialog box to choose logo file with default location in Pictures Folder
     QString fileName = QFileDialog::getOpenFileName(this,tr("Open Image"),QStandardPaths::locate(QStandardPaths::PicturesLocation, QString(),QStandardPaths::LocateDirectory),tr("Image Files (*.png *.jpg)"));
 
     if(fileName.isEmpty())
         return;
     else{
        labelLogoPath->setText(fileName);
-       if(fileName.compare(settings->value("logoPath").toString())){
-           emit logoUpdated();
-       }
     }
 
 }
