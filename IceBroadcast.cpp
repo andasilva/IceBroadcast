@@ -16,6 +16,9 @@ IceBroadcast::IceBroadcast(QWidget *parent)
     mainLayout->setSpacing(0);
     mainLayout->setMargin(0);
 
+    QVBoxLayout *contentLayout = new QVBoxLayout;
+    mainLayout->addLayout(contentLayout);
+
 
     // Create the menu and add it
     this->mainMenu = new Menu();

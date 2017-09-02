@@ -17,7 +17,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
 
     //labels
     labelServerAdress = new QLabel("Server adress:");
-//    labelServerAdress->setFixedWidth(100);
+    //    labelServerAdress->setFixedWidth(100);
     labelUsername = new QLabel("Username:");
     labelPassword = new QLabel("Password:");
     labelMountpoint = new QLabel("Mountpoint:");
@@ -26,7 +26,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     //inputs
     textServerAdress = new QLineEdit;
     if(settings->value("server").isValid())
-       textServerAdress->setText(settings->value("server").toString());
+        textServerAdress->setText(settings->value("server").toString());
     textUsername = new QLineEdit;
     if(settings->value("username").isValid())
         textUsername->setText(settings->value("username").toString());
@@ -73,11 +73,13 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     labelAudioInputSource = new QLabel("Input source:");
     labelAudioOutputSource = new QLabel("Output source:");
 
+
     QHBoxLayout *layoutAudio = new QHBoxLayout;
     layoutAudio->addWidget(labelAudioInputSource);
 
     //Get Input Audio Devices Avaible on computer
     listAudioInput = new QComboBox;
+    listAudioInput->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 
     QList<QAudioDeviceInfo> audioDevicesInput = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
 
@@ -86,17 +88,17 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
         int valueInSettings = 0;
 
         for(int i = 0; i < audioDevicesInput.length(); i++){
-           QString dev = audioDevicesInput.at(i).deviceName();
-           listAudioInput->addItem(dev);
-           if(!dev.compare(settings->value("audioInput").toString())){
+            QString dev = audioDevicesInput.at(i).deviceName();
+            listAudioInput->addItem(dev);
+            if(!dev.compare(settings->value("audioInput").toString())){
                 valueInSettings = i;
-           }
+            }
         }
         listAudioInput->setCurrentIndex(valueInSettings);
     }else{
         foreach(QAudioDeviceInfo dev, audioDevicesInput)
         {
-           listAudioInput->addItem(dev.deviceName());
+            listAudioInput->addItem(dev.deviceName());
         }
     }
 
@@ -104,6 +106,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
 
     //Get Output Audio devices avaible on computer
     listAudioOuput = new QComboBox;
+    listAudioOuput->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
     QList<QAudioDeviceInfo> audioDevicesOutput = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
 
     foreach(QAudioDeviceInfo dev, audioDevicesOutput)
@@ -125,13 +128,14 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     layoutVideo->addWidget(labelVideoInputSource);
 
     listVideoInput = new QComboBox;
+    listVideoInput->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
 
     //Get Camera input on computer
     QList<QCameraInfo> cameras = QCameraInfo::availableCameras() ;
 
     foreach(const QCameraInfo &cameraInfo, cameras)
     {
-            listVideoInput->addItem(cameraInfo.deviceName()) ;
+        listVideoInput->addItem(cameraInfo.deviceName()) ;
     }
 
     layoutVideo->addWidget(listVideoInput);
@@ -144,14 +148,24 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     labelThemes = new QLabel("Themes:");
     listTheme = new QComboBox;
     listTheme->addItem("Dark Theme");
-    labelLogoPathTitle = new QLabel("Logo path");
-    labelLogoPath = new QLabel();
+    labelLogoPathTitle = new QLabel("Logo path:");
+    labelLogoPath = new QLabel("No logo selected");
+    if(settings->value("logoPath").isValid())
+        labelLogoPath->setText(settings->value("logoPath").toString());
+    labelLogoPath->setStyleSheet("border: 1px solid");
     buttonSelectLogoPath = new QPushButton(tr("Select file"));
+
+    listTheme->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+    labelLogoPath->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+
+    connect(buttonSelectLogoPath,&QPushButton::clicked,this,&SettingsWindow::loadLogoFile);
 
     QHBoxLayout *layoutPreferences = new QHBoxLayout;
     layoutPreferences->addWidget(labelThemes);
     layoutPreferences->addWidget(listTheme);
     layoutPreferences->addWidget(labelLogoPathTitle);
+    layoutPreferences->addWidget(labelLogoPath);
+    layoutPreferences->addWidget(buttonSelectLogoPath);
 
 
 
@@ -193,12 +207,29 @@ void SettingsWindow::saveSettings()
     settings->setValue("password",textPassword->displayText());
     settings->setValue("mountpoint",textMountpoint->displayText());
     settings->setValue("audioInput",listAudioInput->currentText());
+    settings->setValue("logoPath",labelLogoPath->text());
 
-/*
+    /*
     QMessageBox confirmationMessage;
     confirmationMessage.setText("Settings Saved");
     confirmationMessage.setIcon(QMessageBox::Information);
     confirmationMessage.exec();
     confirmationMessage.button(QMessageBox::Ok)->animateClick(1);
 */
+}
+
+void SettingsWindow::loadLogoFile()
+{
+    //Open dialog box to choose logo file
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Open Image"),QStandardPaths::locate(QStandardPaths::PicturesLocation, QString(),QStandardPaths::LocateDirectory),tr("Image Files (*.png *.jpg)"));
+
+    if(fileName.isEmpty())
+        return;
+    else{
+       labelLogoPath->setText(fileName);
+       if(fileName.compare(settings->value("logoPath").toString())){
+           emit logoUpdated();
+       }
+    }
+
 }

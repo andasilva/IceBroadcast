@@ -1,18 +1,21 @@
 #include "liveaudiowindow.h"
 #include "stream/streamengine.h"
+#include <lame/lame.h>
 
 const int BufferSize = 4096;
 
 
 LiveAudioWindow::LiveAudioWindow(QWidget *parent) : QWidget(parent)
-  , m_device(QAudioDeviceInfo::defaultInputDevice())
-  , m_audioInfo(0)
-  , m_audioInput(0)
-  , m_input(0)
-  , m_pullMode(true)
-  , m_buffer(BufferSize, 0)
 {
     setupUi();
+    audioRecorder = new QAudioRecorder(this);
+    audioProbe = new QAudioProbe;
+    audioProbe->setSource(audioRecorder);
+
+    connect(audioRecorder, &QAudioRecorder::durationChanged,this,&LiveAudioWindow::updateProgess);
+    connect(audioRecorder, &QAudioRecorder::stateChanged, this, &LiveAudioWindow::onStateChanged);
+    connect(audioProbe,&QAudioProbe::audioBufferProbed,this,&LiveAudioWindow::processBuffer);
+
 }
 
 void LiveAudioWindow::setupUi()
@@ -29,6 +32,8 @@ void LiveAudioWindow::setupUi()
     labelLevel = new QLabel(tr("Microphone level"));
     labelStatus = new QLabel(tr("Not recording"));
     buttonStartStop = new QPushButton(tr("Start Live Audio"));
+    buttonStart = new QPushButton(tr("Start"));
+    buttonStop = new QPushButton(tr("Stop"));
 
     //Sub Layouts
     QHBoxLayout* timeLayout = new QHBoxLayout;
@@ -47,6 +52,8 @@ void LiveAudioWindow::setupUi()
     QHBoxLayout* actionsLayout = new QHBoxLayout;
     actionsLayout->addStretch(20);
     actionsLayout->addWidget(buttonStartStop);
+    actionsLayout->addWidget(buttonStart);
+    actionsLayout->addWidget(buttonStop);
     actionsLayout->addStretch(20);
 
     QHBoxLayout* optionsLayout = new QHBoxLayout;
@@ -68,95 +75,91 @@ void LiveAudioWindow::setupUi()
     this->setLayout(mainLayout);
 
     //Connections
-    connect(buttonStartStop,&QPushButton::clicked,this,&LiveAudioWindow::playLive);
+    connect(buttonStartStop,&QPushButton::clicked,this,&LiveAudioWindow::playTest);
+    connect(buttonStart, &QPushButton::clicked,this,&LiveAudioWindow::playLive);
 }
+
 
 void LiveAudioWindow::playLive()
 {
-    //StreamEngine& streamEngine = StreamEngine::getInstance();
-    //streamEngine.connexionToServer();
-    initializeAudio();
+    QAudioEncoderSettings audioSettings;
+    audioSettings.setCodec("audio/mpeg, mpegversion=(int)1, layer=(int)3");
+    audioSettings.setSampleRate(0);
+    audioSettings.setBitRate(0);
+    audioSettings.setChannelCount(1);
+
+
+    audioRecorder->setEncodingSettings(audioSettings,QVideoEncoderSettings(),"audio/mpeg, mpegversion=(int)1");
+    audioRecorder->setOutputLocation(QUrl("/home/angelkiro/Musique/test.mp3"));
+    StreamEngine& streamEngine = StreamEngine::getInstance();
+    streamEngine.connexionToServer();
+    audioRecorder->record();
 }
 
-
-void LiveAudioWindow::initializeAudio()
+void LiveAudioWindow::processBuffer(const QAudioBuffer& buffer)
 {
-    m_format.setSampleRate(8000);
-    m_format.setChannelCount(1);
-    m_format.setSampleSize(16);
-    m_format.setSampleType(QAudioFormat::SignedInt);
-    m_format.setByteOrder(QAudioFormat::LittleEndian);
-    m_format.setCodec("audio/mp3");
+    /*qDebug() << buffer.format().codec();
+    QAudioDeviceInfo info(QAudioDeviceInfo::defaultInputDevice());
+    qDebug() << info.supportedCodecs();*/
 
-    QAudioDeviceInfo info(m_device);
-    if (!info.isFormatSupported(m_format))
-    {
-        qWarning() << "Default format not supported - trying to use nearest";
-        m_format = info.nearestFormat(m_format);
+    const short int* data = buffer.data<short int>();
+
+
+    int pcm_size = buffer.byteCount();
+
+    unsigned char mp3Buffer[pcm_size];
+    short int pcm_buffer[pcm_size];
+
+    for(int i = 0; i < pcm_size ; i++){
+        pcm_buffer[i] = data[i];
+        qDebug() << data[i];
     }
 
-    if (m_audioInfo)
-    {
-        delete m_audioInfo;
-    }
 
-    m_audioInfo  = new AudioInfo(m_format, this);
-    connect(m_audioInfo, SIGNAL(update()), SLOT(refreshDisplay()));
+    lame_t lame = lame_init();
+    lame_set_in_samplerate(lame,44100);
+    lame_set_VBR(lame,vbr_default);
+    lame_init_params(lame);
 
-    createAudioInput();
+
+
+    lame_encode_buffer_interleaved(lame,pcm_buffer,pcm_size, mp3Buffer,pcm_size);
+    lame_encode_flush(lame,mp3Buffer,pcm_size);
+    lame_close(lame);
+
+
+
+    StreamEngine& streamEngine = StreamEngine::getInstance();
+    streamEngine.sendDataToPlay(mp3Buffer,pcm_size);
+
 }
 
-void LiveAudioWindow::createAudioInput()
+
+void LiveAudioWindow::pauseLive()
 {
-    m_audioInput = new QAudioInput(m_device, m_format, this);
-    qreal initialVolume = QAudio::convertVolume(m_audioInput->volume(), QAudio::LinearVolumeScale, QAudio::LogarithmicVolumeScale);
 
-    m_audioInfo->start();
-    m_audioInput->start(m_audioInfo);
 }
 
-void LiveAudioWindow::readMore()
+void LiveAudioWindow::playTest()
 {
-    if (!m_audioInput)
-    {
-        return;
-    }
-
-    qint64 len = m_audioInput->bytesReady();
-
-    if (len > BufferSize)
-    {
-        len = BufferSize;
-    }
-
-    qint64 l = m_input->read(m_buffer.data(), len);
-
-    if (l > 0)
-    {
-        m_audioInfo->write(m_buffer.constData(), l);
-    }
+    StreamEngine& streamEngine = StreamEngine::getInstance();
+    streamEngine.connexionToServer();
+    streamEngine.sendMusicTest();
 }
 
-void LiveAudioWindow::refreshDisplay()
+void LiveAudioWindow::updateStatus(QMediaRecorder::Status status)
 {
-    vuMeter->setLevel(m_audioInfo->level());
+
 }
 
-//void LiveAudioWindow::toggleMode()
-//{
-//    // Change bewteen pull and push modes
-//    m_audioInput->stop();
+void LiveAudioWindow::onStateChanged(QMediaRecorder::State state)
+{
 
-//    if (m_pullMode) {
-//        m_modeButton->setText(tr(PULL_MODE_LABEL));
-//        m_input = m_audioInput->start();
-//        connect(m_input, SIGNAL(readyRead()), SLOT(readMore()));
-//        m_pullMode = false;
-//    } else {
-//        m_modeButton->setText(tr(PUSH_MODE_LABEL));
-//        m_pullMode = true;
-//        m_audioInput->start(m_audioInfo);
-//    }
+}
 
-//    m_suspendResumeButton->setText(tr(SUSPEND_LABEL));
-//}
+void LiveAudioWindow::updateProgess(qint64 pos)
+{
+
+}
+
+

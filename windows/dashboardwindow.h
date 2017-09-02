@@ -2,6 +2,7 @@
 #define DASHBOARDWINDOW_H
 
 #include <QWidget>
+#include <QtWidgets>
 
 class DashboardWindow : public QWidget
 {
@@ -9,9 +10,12 @@ class DashboardWindow : public QWidget
 public:
     explicit DashboardWindow(QWidget *parent = 0);
 
+private:
+    QLabel *logo;
 signals:
 
 public slots:
+    void setLogo();
 };
 
 #endif // DASHBOARDWINDOW_H

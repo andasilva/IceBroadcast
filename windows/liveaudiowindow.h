@@ -12,7 +12,8 @@ class LiveAudioWindow : public QWidget
 public:
     explicit LiveAudioWindow(QWidget *parent = 0);
 
-    QPushButton* buttonStartStop;
+private:
+    QPushButton* buttonStartStop, *buttonStart, *buttonStop;
     QLCDNumber* time;
     QSlider* sliderGain;
     QLabel* labelStatus;
@@ -21,24 +22,26 @@ public:
     QLabel* labelGain;
     VuMeter* vuMeter;
 
-    QAudioDeviceInfo m_device;
-    AudioInfo* m_audioInfo;
-    QAudioFormat m_format;
-    QAudioInput* m_audioInput;
-    QIODevice* m_input;
-    bool m_pullMode;
-    QByteArray m_buffer;
-
     void setupUi();
-    void initializeAudio();
-    void createAudioInput();
-    void readMore();
+
+    QAudioRecorder *audioRecorder;
+    QAudioProbe *audioProbe;
+
 
 signals:
 
+
+public slots:
+    void processBuffer(const QAudioBuffer& buffer);
+
 private slots:
     void playLive();
-    void refreshDisplay();
+    void pauseLive();
+    void playTest();
+
+    void updateStatus(QMediaRecorder::Status status);
+    void onStateChanged(QMediaRecorder::State state);
+    void updateProgess(qint64 pos);
 };
 
 #endif // LIVEAUDIOWINDOW_H

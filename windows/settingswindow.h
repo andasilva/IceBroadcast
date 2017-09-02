@@ -26,9 +26,10 @@ private:
     QSettings *settings;
 
 signals:
-
+    void logoUpdated();
 public slots:
     void saveSettings();
+    void loadLogoFile();
 };
 
 #endif // SETTINGSWINDOW_H

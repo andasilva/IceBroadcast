@@ -3,7 +3,7 @@
 #include <QSettings>
 
 StreamEngine::StreamEngine(QObject *parent)
-:QObject(parent)
+    :QObject(parent)
 {
     shout_init();
     connexion = shout_new();
@@ -16,6 +16,16 @@ StreamEngine::StreamEngine(QObject *parent)
 bool StreamEngine::getIsRunning() const
 {
     return isRunning;
+}
+
+void StreamEngine::sendDataToPlay(const unsigned char *data, size_t length)
+{
+    long ret = shout_send(connexion, data, length);
+    if (ret != SHOUTERR_SUCCESS) {
+        printf("DEBUG: Send error: %s\n", shout_get_error(connexion));
+    }
+
+    shout_sync(connexion);
 }
 
 void StreamEngine::connexionToServer()
@@ -45,11 +55,39 @@ void StreamEngine::connexionToServer()
     }
 }
 
+
+
 void StreamEngine::checkConnexion()
 {
     if(shout_get_connected(connexion) != SHOUTERR_CONNECTED){
         qDebug() << "Connexion interrupted";
         timerCheckConnexion->stop();
+    }
+}
+
+void StreamEngine::sendMusicTest()
+{
+    FILE * pFile;
+    unsigned char buff[4096];
+
+    pFile = fopen ("/home/angelkiro/Musique/test.mp3" , "r");
+    if (pFile == NULL) perror ("Error opening file");
+
+    long read, ret;
+
+    while (true) {
+        read = fread(buff, 1, sizeof(buff), pFile);
+        qDebug() << read;
+        if (read > 0) {
+            ret = shout_send(connexion, buff, read);
+            if (ret != SHOUTERR_SUCCESS) {
+                printf("DEBUG: Send error: %s\n", shout_get_error(connexion));
+                break;
+            }
+        } else {
+            break;
+        }
+        shout_sync(connexion);
     }
 }
 

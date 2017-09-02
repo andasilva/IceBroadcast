@@ -16,6 +16,7 @@ public:
     }
 
     bool getIsRunning() const;
+    void sendDataToPlay(const unsigned char* data, size_t length);
 
 private:
     StreamEngine(QObject *parent=0);
@@ -28,6 +29,8 @@ private:
 public slots:
     void connexionToServer();
     void checkConnexion();
+    void sendMusicTest();
+
 };
 
 #endif // STREAMENGINE_H
