@@ -2,6 +2,8 @@
 #define WORKERSTREAM_H
 
 #include <QObject>
+#include <QtWidgets>
+#include "shout/shout.h"
 
 class WorkerStream : public QObject
 {
@@ -12,7 +14,7 @@ public:
 signals:
 
 public slots:
-    void stremAudio();
+    void start();
 };
 
 #endif // WORKERSTREAM_H

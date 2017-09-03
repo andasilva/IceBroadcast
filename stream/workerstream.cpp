@@ -1,21 +1,19 @@
 #include "workerstream.h"
+#include "streamengine.h"
 
 WorkerStream::WorkerStream(QObject *parent) : QObject(parent)
 {
 
 }
 
-void WorkerStream::stremAudio()
+void WorkerStream::start()
 {
-    /*mp3File = new QFile(":/ressources/medias/sound.mp3");
+    StreamEngine &streamEngine = StreamEngine::getInstance();
+    streamEngine.connexionToServer();
 
-    if(mp3File->open(QFile::ReadOnly)){
-       qDebug() << "File opened";
-    }else{
-        qDebug() << "Error";
-    }
+    shout_t* connexion = streamEngine.getConnexion();
 
-    FILE * pFile;
+    FILE* pFile;
     unsigned char buff[4096];
 
     pFile = fopen ("/home/angelkiro/Documents/Dev/Qt/IceBroadcast/medias/sound.mp3" , "r");
@@ -36,5 +34,5 @@ void WorkerStream::stremAudio()
             break;
         }
         shout_sync(connexion);
-    }*/
+    }
 }

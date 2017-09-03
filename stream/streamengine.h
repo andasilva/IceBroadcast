@@ -18,6 +18,8 @@ public:
     bool getIsRunning() const;
     void sendDataToPlay(const unsigned char* data, size_t length);
 
+    shout_t *getConnexion() const;
+
 private:
     StreamEngine(QObject *parent=0);
     shout_t *connexion;

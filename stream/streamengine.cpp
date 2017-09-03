@@ -1,5 +1,6 @@
 #include "streamengine.h"
 #include "lib/shout.h"
+#include "workerstream.h"
 #include <QSettings>
 
 StreamEngine::StreamEngine(QObject *parent)
@@ -11,6 +12,11 @@ StreamEngine::StreamEngine(QObject *parent)
     timerCheckConnexion = new QTimer(this);
     threadPlayAudio = new QThread;
     connect(timerCheckConnexion,&QTimer::timeout,this,&StreamEngine::checkConnexion);
+}
+
+shout_t *StreamEngine::getConnexion() const
+{
+    return connexion;
 }
 
 bool StreamEngine::getIsRunning() const
@@ -70,6 +76,13 @@ void StreamEngine::checkConnexion()
 
 void StreamEngine::sendMusicTest()
 {
+    WorkerStream* worker = new WorkerStream;
+    QThread *thread = new QThread(this);
+    worker->moveToThread(thread);
+    QMetaObject::invokeMethod(worker,"start");
+    thread->start();
+
+    /*
     FILE * pFile;
     unsigned char buff[4096];
 
@@ -91,7 +104,7 @@ void StreamEngine::sendMusicTest()
             break;
         }
         shout_sync(connexion);
-    }
+    }*/
 }
 
 

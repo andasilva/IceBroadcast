@@ -30,6 +30,8 @@ private:
     int currentPlaylist;
 
     void loadPlaylistAvaible();
+    void listContentPlaylist(int playlistNumber);
+    void getAndShowInfoMusic(QString path);
     void setupUi();
 signals:
 
