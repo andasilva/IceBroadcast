@@ -44,7 +44,8 @@ IceBroadcast::IceBroadcast(QWidget *parent)
     liveTvWindow->hide();
     settingsWindow->hide();
 
-
+    //Connections
+    connect(audioWindow, SIGNAL(playingSongChanged(QString)), dashboardWindow, SLOT(updateMusicBeingPlayed(QString)));
     connect(settingsWindow,&SettingsWindow::logoUpdated,dashboardWindow,&DashboardWindow::setLogo);
     //ONly for test
     /*StreamEngine& audioControler = StreamEngine::getInstance();

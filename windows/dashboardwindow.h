@@ -12,6 +12,8 @@ public:
 
 private:
     QLabel *logo, *labelMusicBeingPlayed, *labelServerStatus;
+    void setupUi();
+
 signals:
 
 public slots:
