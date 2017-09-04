@@ -1,5 +1,6 @@
 #include "audiowindow.h"
 #include <QtWidgets>
+#include "audio/songinfo.h"
 
 AudioWindow::AudioWindow(QWidget *parent) : QWidget(parent)
 {
@@ -57,8 +58,9 @@ void AudioWindow::listContentPlaylist(int playlistNumber)
     QTextStream textStream(&file);
     while(!textStream.atEnd()){
         QString line = file.readLine();
+        line.truncate(line.length() - 1);
         getAndShowInfoMusic(line);
-        qDebug() << line;
+        qDebug() << "Line : " << line;
     }
 
 }
@@ -68,10 +70,32 @@ void AudioWindow::getAndShowInfoMusic(QString path)
     int numberOflines = tableMusic->rowCount()+1;
     qDebug() << numberOflines;
     tableMusic->setRowCount(numberOflines);
-    QTableWidgetItem* item  = new QTableWidgetItem(path);
-    item->setFlags(item->flags() ^ Qt::ItemIsEditable);
-    tableMusic->setItem(numberOflines-1,1,item);
 
+    SongInfo* song = new SongInfo(path);
+
+    QTableWidgetItem* artistItem = new QTableWidgetItem(song->getArtist());
+    artistItem->setFlags(artistItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 0, artistItem);
+
+    QTableWidgetItem* titleItem = new QTableWidgetItem(song->getTitle());
+    titleItem->setFlags(titleItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 1, titleItem);
+
+    QTableWidgetItem* albumItem = new QTableWidgetItem(song->getAlbum());
+    albumItem->setFlags(albumItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 2, albumItem);
+
+    QTableWidgetItem* yearItem = new QTableWidgetItem(song->getYear());
+    yearItem->setFlags(yearItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 3, yearItem);
+
+    QTableWidgetItem* lenghtItem = new QTableWidgetItem(song->getLength());
+    lenghtItem->setFlags(lenghtItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 4, lenghtItem);
+
+    QTableWidgetItem* pathItem = new QTableWidgetItem(path);
+    pathItem->setFlags(pathItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 5, pathItem);
 }
 
 void AudioWindow::setupUi()
@@ -99,14 +123,14 @@ void AudioWindow::setupUi()
     labelPlaylist = new QLabel(tr("<b>Playlists</b>"));
 
     QStringList headers;
-    headers << tr("Artist") << tr("Title") << tr("Album") << tr("Year") << tr("Lenght");
+    headers << tr("Artist") << tr("Title") << tr("Album") << tr("Year") << tr("Lenght") << tr("Path");
 
-    tableMusic = new QTableWidget(0, 5);
+    tableMusic = new QTableWidget(0, 6);
     tableMusic->setHorizontalHeaderLabels(headers);
     tableMusic->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
     tableMusic->setSelectionMode(QAbstractItemView::SingleSelection);
     tableMusic->setSelectionBehavior(QAbstractItemView::SelectRows);
-    //connect(tableMusic, SIGNAL(cellPressed(int,int)),this, SLOT(tableClicked(int,int)));
+    connect(tableMusic, SIGNAL(cellPressed(int,int)),this, SLOT(tableClicked(int,int)));
 
     //Playlist layout
     QVBoxLayout *playlistLayout = new QVBoxLayout;
@@ -170,12 +194,42 @@ void AudioWindow::addSongPressed()
         QTextStream out(&file);
         out << fileName.toUtf8() << endl;
         file.close();
+        getAndShowInfoMusic(fileName);
     }
 }
 
 void AudioWindow::removeSongPressed()
 {
+    int response = QMessageBox::question(this,tr("Remove song"),tr("Are you sure you want to delete this song from the playlist?"), QMessageBox::Yes | QMessageBox::No);
 
+    if(response == QMessageBox::Yes)
+    {
+        QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) + ".IceBroadcast/playlist/" + listPlaylist->item(currentPlaylist)->text() + ".txt";
+
+        QFile file(path);
+        if(file.open(QIODevice::ReadWrite | QIODevice::Text))
+        {
+            QString s;
+            QTextStream textStream(&file);
+            int i = 0;
+
+            while(!textStream.atEnd())
+            {
+                QString line = textStream.readLine();
+                if(i != selectedSong)
+                {
+                    s.append(line + "\n");
+                }
+                i++;
+            }
+
+            file.resize(0);
+            textStream << s;
+            file.close();
+
+            tableMusic->removeRow(selectedSong);
+        }
+    }
 }
 
 void AudioWindow::addPlaylistPressed()
@@ -211,6 +265,7 @@ void AudioWindow::removePlaylistPressed()
         QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) + ".IceBroadcast/playlist/" + listPlaylist->item(currentPlaylist)->text() + ".txt";
         QFile file(path);
         file.remove();
+
         listPlaylist->clear();
         loadPlaylistAvaible();
     }
@@ -234,6 +289,12 @@ void AudioWindow::previousPressed()
 void AudioWindow::nextPressed()
 {
 
+}
+
+void AudioWindow::tableClicked(int y, int x)
+{
+    qDebug() << "Row : " << y << " Column : " << x;
+    selectedSong = y;
 }
 
 void AudioWindow::updateCurrentPlaylist(int playlistNumber)

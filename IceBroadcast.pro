@@ -40,7 +40,8 @@ SOURCES += \
     stream/streamengine.cpp \
     audio/audioinfo.cpp \
     stream/workerstream.cpp \
-    audio/vumeter.cpp
+    audio/vumeter.cpp \
+    audio/songinfo.cpp
     
 HEADERS += \
         IceBroadcast.h \
@@ -60,7 +61,8 @@ HEADERS += \
     stream/streamengine.h \
     audio/audioinfo.h \
     stream/workerstream.h \
-    audio/vumeter.h
+    audio/vumeter.h \
+    audio/songinfo.h
     
 RESOURCES += \
     ressources.qrc

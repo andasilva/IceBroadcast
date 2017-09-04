@@ -3,6 +3,7 @@
 
 #include <QtWidgets>
 #include <QtMultimedia>
+#include "stream/streamengine.h"
 
 class AudioWindow : public QWidget
 {
@@ -24,10 +25,12 @@ private:
     QLCDNumber* time;
     QTableWidget* tableMusic;
     QSlider* slider;
-
     QLabel* labelPlaylist;
 
+    StreamEngine* streamEngine;
+
     int currentPlaylist;
+    int selectedSong;
 
     void loadPlaylistAvaible();
     void listContentPlaylist(int playlistNumber);
@@ -45,6 +48,7 @@ private slots:
     void previousPressed();
     void nextPressed();
 
+    void tableClicked(int,int);
     void updateCurrentPlaylist(int playlistNumber);
 
 };
