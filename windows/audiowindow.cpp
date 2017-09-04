@@ -4,6 +4,7 @@
 
 AudioWindow::AudioWindow(QWidget *parent) : QWidget(parent)
 {
+    isPlaying = false;
     setupUi();
     loadPlaylistAvaible();
     connect(listPlaylist,&QListWidget::currentRowChanged,this,&AudioWindow::updateCurrentPlaylist);
@@ -51,18 +52,19 @@ void AudioWindow::listContentPlaylist(int playlistNumber)
     QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) + ".IceBroadcast/playlist/" + listPlaylist->item(playlistNumber)->text() + ".txt";
     QFile file(path);
 
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
         return;
     }
 
     QTextStream textStream(&file);
-    while(!textStream.atEnd()){
+    while(!textStream.atEnd())
+    {
         QString line = file.readLine();
         line.truncate(line.length() - 1);
         getAndShowInfoMusic(line);
         qDebug() << "Line : " << line;
     }
-
 }
 
 void AudioWindow::getAndShowInfoMusic(QString path)
@@ -71,6 +73,7 @@ void AudioWindow::getAndShowInfoMusic(QString path)
     qDebug() << numberOflines;
     tableMusic->setRowCount(numberOflines);
 
+    //Get metadata from the song
     SongInfo* song = new SongInfo(path);
 
     QTableWidgetItem* artistItem = new QTableWidgetItem(song->getArtist());
@@ -106,7 +109,6 @@ void AudioWindow::setupUi()
     listPlaylist = new QListWidget();
     listPlaylist->setMaximumWidth(200);
 
-
     buttonPlayPause = new QPushButton(tr("Play/Pause"));
     buttonStop = new QPushButton(tr("Stop"));
     buttonPrevious = new QPushButton(tr("Previous"));
@@ -130,7 +132,6 @@ void AudioWindow::setupUi()
     tableMusic->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
     tableMusic->setSelectionMode(QAbstractItemView::SingleSelection);
     tableMusic->setSelectionBehavior(QAbstractItemView::SelectRows);
-    connect(tableMusic, SIGNAL(cellPressed(int,int)),this, SLOT(tableClicked(int,int)));
 
     //Playlist layout
     QVBoxLayout *playlistLayout = new QVBoxLayout;
@@ -175,6 +176,7 @@ void AudioWindow::setupUi()
     connect(buttonRemovePlaylist, &QPushButton::clicked, this, &AudioWindow::removePlaylistPressed);
     connect(buttonAddSong, &QPushButton::clicked, this, &AudioWindow::addSongPressed);
     connect(buttonRemoveSong, &QPushButton::clicked, this, &AudioWindow::removeSongPressed);
+    connect(tableMusic, SIGNAL(cellPressed(int,int)),this, SLOT(tableClicked(int,int)));
 }
 
 void AudioWindow::addSongPressed()
@@ -182,15 +184,20 @@ void AudioWindow::addSongPressed()
     QString fileName = QFileDialog::getOpenFileName(this,tr("Load song"),QStandardPaths::locate(QStandardPaths::MusicLocation, QString(),QStandardPaths::LocateDirectory),tr("Song Files (*.mp3)"));
 
     if(fileName.isEmpty())
+    {
         return;
-    else{
+    }
+    else
+    {
         QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) + ".IceBroadcast/playlist/" + listPlaylist->item(currentPlaylist)->text() + ".txt";
-
         QFile file(path);
-        if(!file.open(QFile::Append | QFile::Text)){
+
+        if(!file.open(QFile::Append | QFile::Text))
+        {
             qDebug() << "Error while add Song on playlist";
             return;
         }
+
         QTextStream out(&file);
         out << fileName.toUtf8() << endl;
         file.close();
@@ -205,10 +212,11 @@ void AudioWindow::removeSongPressed()
     if(response == QMessageBox::Yes)
     {
         QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) + ".IceBroadcast/playlist/" + listPlaylist->item(currentPlaylist)->text() + ".txt";
-
         QFile file(path);
+
         if(file.open(QIODevice::ReadWrite | QIODevice::Text))
         {
+            //Erase and rewrite the file without the removed line
             QString s;
             QTextStream textStream(&file);
             int i = 0;
@@ -236,19 +244,28 @@ void AudioWindow::addPlaylistPressed()
 {
     bool ok;
     QString playlistName = QInputDialog::getText(this,tr("Create a playlist"),tr("Playlist name:"),QLineEdit::Normal,"",&ok);
-    if(ok && !playlistName.isEmpty()){
+
+    if(ok && !playlistName.isEmpty())
+    {
         QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) + ".IceBroadcast/playlist/" + playlistName + ".txt";
-        if(QFile::exists(path)){
+
+        if(QFile::exists(path))
+        {
             qDebug() << "This playlist name already exits...";
             QMessageBox::warning(this,tr("Duplicate playlist name"),tr("This playlist name already exists... Write another playlist name."),QMessageBox::Ok);
-        }else{
+        }
+        else
+        {
             //Create the new playlist
             QFile file(path);
-            if(file.open(QIODevice::ReadWrite)){
+
+            if(file.open(QIODevice::ReadWrite))
+            {
                 file.close();
                 qDebug() << "New playlist created: " << playlistName;
                 listPlaylist->clear();
                 loadPlaylistAvaible();
+
                 //Set the new playlist as selected
                 QList<QListWidgetItem*> items = listPlaylist->findItems(playlistName,Qt::MatchExactly);
                 listPlaylist->setCurrentItem(items.at(0));
@@ -261,7 +278,8 @@ void AudioWindow::removePlaylistPressed()
 {
     int response = QMessageBox::question(this,tr("Delete playlist"),tr("Are you sure you want to delete %1 playlist?").arg(listPlaylist->item(currentPlaylist)->text()),QMessageBox::Yes | QMessageBox::No);
 
-    if(response == QMessageBox::Yes){
+    if(response == QMessageBox::Yes)
+    {
         QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) + ".IceBroadcast/playlist/" + listPlaylist->item(currentPlaylist)->text() + ".txt";
         QFile file(path);
         file.remove();
@@ -273,22 +291,37 @@ void AudioWindow::removePlaylistPressed()
 
 void AudioWindow::playPausePressed()
 {
+    StreamEngine& streamEngine = StreamEngine::getInstance();
 
+    if(isPlaying == true)
+    {
+
+    }
+    else
+    {
+        playingSong = selectedSong;
+    }
 }
 
 void AudioWindow::stopPressed()
 {
-
+    isPlaying = false;
 }
 
 void AudioWindow::previousPressed()
 {
-
+    if(selectedSong > 0)
+    {
+        tableMusic->selectRow(selectedSong - 1);
+    }
 }
 
 void AudioWindow::nextPressed()
 {
-
+    if(selectedSong < tableMusic->rowCount())
+    {
+        tableMusic->selectRow(selectedSong + 1);
+    }
 }
 
 void AudioWindow::tableClicked(int y, int x)
@@ -301,7 +334,9 @@ void AudioWindow::updateCurrentPlaylist(int playlistNumber)
 {
     qDebug() << "Current playlist number: " << playlistNumber;
     currentPlaylist = playlistNumber;
-    if(playlistNumber >= 0){
+
+    if(playlistNumber >= 0)
+    {
         //Clear table music
         tableMusic->setRowCount(0);
         listContentPlaylist(playlistNumber);

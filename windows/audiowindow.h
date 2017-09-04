@@ -27,10 +27,10 @@ private:
     QSlider* slider;
     QLabel* labelPlaylist;
 
-    StreamEngine* streamEngine;
-
     int currentPlaylist;
     int selectedSong;
+    int playingSong;
+    bool isPlaying;
 
     void loadPlaylistAvaible();
     void listContentPlaylist(int playlistNumber);

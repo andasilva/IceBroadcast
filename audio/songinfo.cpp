@@ -9,15 +9,12 @@ SongInfo::SongInfo(QString path)
     QMediaPlayer* player = new QMediaPlayer;
     player->setMedia(QMediaContent(QUrl::fromLocalFile(path)));
     player->setVolume(50);
-    player->play();
-
+    //player->play();
 
     qDebug() << "metadata : " << player->isMetaDataAvailable();
-    qDebug() << "Title : " << player->metaData("Title").toString();
     this->title = player->metaData("Title").toString();
     this->artist = player->metaData("Artist").toString();
     delete player;
-
 }
 
 QString SongInfo::getArtist()
