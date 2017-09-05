@@ -32,10 +32,18 @@ void AudioWindow::setupUi()
     buttonRemoveSong = new QPushButton(tr("Remove Song"));
 
     slider = new QSlider(Qt::Horizontal);
+    slider->setEnabled(false);
+    slider->setMinimum(0);
+
     time = new QLCDNumber();
+    time->setSegmentStyle(QLCDNumber::Flat);
+    time->setFrameStyle(QFrame::NoFrame);
     time->setDigitCount(5);
     time->display(QString("00:00"));
+
     timeTotal = new QLCDNumber();
+    timeTotal->setSegmentStyle(QLCDNumber::Flat);
+    timeTotal->setFrameStyle(QFrame::NoFrame);
     timeTotal->setDigitCount(5);
     timeTotal->display(QString("00:00"));
 
@@ -101,6 +109,7 @@ void AudioWindow::setupUi()
 
 void AudioWindow::initUi()
 {
+    //Init the initial value for some variables and buttons
     isPlaying = false;
     playingSong = -1;
 
@@ -185,6 +194,7 @@ void AudioWindow::listContentPlaylist(int playlistNumber)
         qDebug() << "Line : " << line;
     }
 
+    //Initialize UI after loading a new playlist
     initUi();
 }
 
@@ -357,7 +367,6 @@ void AudioWindow::playPressed()
 
 void AudioWindow::songDoubleClick(int y, int x)
 {
-    qDebug() << "start playing : " << y;
     //Stream the audio
     StreamEngine &streamEngine = StreamEngine::getInstance();
     streamEngine.connexionToServer();
@@ -369,8 +378,15 @@ void AudioWindow::songDoubleClick(int y, int x)
     buttonPlay->setEnabled(false);
     buttonStop->setEnabled(true);
 
-    QDateTime dateTime = QDateTime::fromTime_t(tableMusic->item(playingSong, 5)->text().toInt());
+    int duration = tableMusic->item(playingSong, 5)->text().toInt();
+    QDateTime dateTime = QDateTime::fromTime_t(duration);
     timeTotal->display(dateTime.toString("mm:ss"));
+    time->display("00:00");
+    elapsedSeconds = 0;
+    timer->start();
+
+    slider->setMaximum(duration);
+    slider->setValue(elapsedSeconds);
     emit playingSongChanged(tableMusic->item(playingSong, 0)->text() + " - " + tableMusic->item(playingSong, 1)->text());
 }
 
@@ -378,9 +394,16 @@ void AudioWindow::stopPressed()
 {
     if(isPlaying == true)
     {
+        //Update UI
         isPlaying = false;
         buttonStop->setEnabled(false);
         buttonPlay->setEnabled(true);
+        timer->stop();
+        time->display("00:00");
+        elapsedSeconds = 0;
+        slider->setValue(elapsedSeconds);
+
+        //Stop streaming
         StreamEngine &streamEngine = StreamEngine::getInstance();
         streamEngine.connexionToServer();
         streamEngine.stopMusic();
@@ -399,11 +422,19 @@ void AudioWindow::previousPressed()
 }
 
 void AudioWindow::nextPressed()
-{
+{    
     if(playingSong < tableMusic->rowCount()-1 && playingSong != -1)
     {
         stopPressed();
         selectedSong++;
+        tableMusic->selectRow(selectedSong);
+        playPressed();
+    }
+    else if(playingSong == tableMusic->rowCount()-1)
+    {
+        //Back to the top of the playlist
+        stopPressed();
+        selectedSong = 0;
         tableMusic->selectRow(selectedSong);
         playPressed();
     }
@@ -429,5 +460,13 @@ void AudioWindow::updateCurrentPlaylist(int playlistNumber)
 
 void AudioWindow::updateTime()
 {
+    elapsedSeconds++;
+    QDateTime dateTime = QDateTime::fromTime_t(elapsedSeconds);
+    time->display(dateTime.toString("mm:ss"));
+    slider->setValue(elapsedSeconds);
 
+    if(slider->value() == slider->maximum())
+    {
+        nextPressed();
+    }
 }

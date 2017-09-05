@@ -33,6 +33,7 @@ private:
     int playingSong;
     bool isPlaying;
     QTimer* timer;
+    int elapsedSeconds;
 
     void loadPlaylistAvaible();
     void listContentPlaylist(int playlistNumber);
