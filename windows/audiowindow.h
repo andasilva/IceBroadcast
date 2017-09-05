@@ -16,7 +16,7 @@ private:
     QPushButton* buttonRemovePlaylist;
     QPushButton* buttonAddSong;
     QPushButton* buttonRemoveSong;
-    QPushButton* buttonPlayPause;
+    QPushButton* buttonPlay;
     QPushButton* buttonStop;
     QPushButton* buttonPrevious;
     QPushButton* buttonNext;
@@ -46,7 +46,7 @@ private slots:
     void removeSongPressed();
     void addPlaylistPressed();
     void removePlaylistPressed();
-    void playPausePressed();
+    void playPressed();
     void songDoubleClick(int y, int x);
     void stopPressed();
     void previousPressed();

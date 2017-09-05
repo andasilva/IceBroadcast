@@ -2,12 +2,7 @@
 
 const int BufferSize = 4096;
 
-AudioInfo::AudioInfo(const QAudioFormat &format, QObject *parent)
-    :   QIODevice(parent)
-    ,   m_format(format)
-    ,   m_maxAmplitude(0)
-    ,   m_level(0.0)
-
+AudioInfo::AudioInfo(const QAudioFormat &format, QObject *parent) : QIODevice(parent), m_format(format), m_maxAmplitude(0), m_level(0.0)
 {
     switch (m_format.sampleSize())
     {

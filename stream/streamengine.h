@@ -18,6 +18,7 @@ public:
 
     bool getIsRunning() const;
     void sendDataToPlay(const unsigned char* data, size_t length);
+    void stopMusic();
 
     shout_t *getConnexion() const;
 
