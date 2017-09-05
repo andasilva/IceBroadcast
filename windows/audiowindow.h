@@ -38,6 +38,7 @@ private:
     void listContentPlaylist(int playlistNumber);
     void getAndShowInfoMusic(QString path);
     void setupUi();
+    void initUi();
 signals:
     void playingSongChanged(QString songName);
 

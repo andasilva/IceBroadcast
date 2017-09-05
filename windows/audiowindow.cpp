@@ -5,17 +5,14 @@
 
 AudioWindow::AudioWindow(QWidget *parent) : QWidget(parent)
 {
-    isPlaying = false;
-    currentPlaylist = -1;
-    selectedSong = -1;
-    playingSong = -1;
-
     timer = new QTimer(this);
     timer->setInterval(1000);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTime()));
 
     setupUi();
     loadPlaylistAvaible();
+
+    initUi();
 }
 
 void AudioWindow::setupUi()
@@ -28,6 +25,7 @@ void AudioWindow::setupUi()
 
     buttonPlay = new QPushButton(tr("Play"));
     buttonStop = new QPushButton(tr("Stop"));
+    buttonStop->setEnabled(false);
     buttonPrevious = new QPushButton(tr("Previous"));
     buttonNext = new QPushButton(tr("Next"));
 
@@ -102,6 +100,23 @@ void AudioWindow::setupUi()
     connect(tableMusic,&QTableWidget::cellDoubleClicked,this,&AudioWindow::songDoubleClick);
 }
 
+void AudioWindow::initUi()
+{
+    isPlaying = false;
+    playingSong = -1;
+
+    if(tableMusic->rowCount() == 0)
+    {
+        buttonPlay->setEnabled(false);
+        selectedSong = -1;
+    }
+    else
+    {
+        selectedSong = 0;
+        tableMusic->selectRow(selectedSong);
+    }
+}
+
 void AudioWindow::loadPlaylistAvaible()
 {
     QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) +".IceBroadcast/playlist/";
@@ -170,6 +185,8 @@ void AudioWindow::listContentPlaylist(int playlistNumber)
         getAndShowInfoMusic(line);
         qDebug() << "Line : " << line;
     }
+
+    initUi();
 }
 
 void AudioWindow::getAndShowInfoMusic(QString path)
@@ -323,9 +340,6 @@ void AudioWindow::playPressed()
 {
     if(isPlaying == false)
     {
-        isPlaying = true;
-        buttonPlay->setEnabled(false);
-        buttonStop->setEnabled(true);
         songDoubleClick(selectedSong, 0);
     }
 }
@@ -337,7 +351,11 @@ void AudioWindow::songDoubleClick(int y, int x)
     StreamEngine &streamEngine = StreamEngine::getInstance();
     streamEngine.connexionToServer();
     streamEngine.playMusic(tableMusic->item(y,5)->text());
+
+    isPlaying = true;
     playingSong = selectedSong = y;
+    buttonPlay->setEnabled(false);
+    buttonStop->setEnabled(true);
     emit playingSongChanged(tableMusic->itemAt(0, playingSong)->text() + tableMusic->itemAt(1, playingSong)->text());
 }
 
@@ -367,7 +385,7 @@ void AudioWindow::previousPressed()
 
 void AudioWindow::nextPressed()
 {
-    if(playingSong <= tableMusic->rowCount())
+    if(playingSong < tableMusic->rowCount()-1 && playingSong != -1)
     {
         stopPressed();
         selectedSong++;
