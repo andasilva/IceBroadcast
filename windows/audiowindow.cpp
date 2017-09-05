@@ -11,7 +11,6 @@ AudioWindow::AudioWindow(QWidget *parent) : QWidget(parent)
 
     setupUi();
     loadPlaylistAvaible();
-
     initUi();
 }
 
@@ -43,9 +42,9 @@ void AudioWindow::setupUi()
     labelPlaylist = new QLabel(tr("<b>Playlists</b>"));
 
     QStringList headers;
-    headers << tr("Artist") << tr("Title") << tr("Album") << tr("Year") << tr("Lenght") << tr("Path");
+    headers << tr("Artist") << tr("Title") << tr("Album") << tr("Year") << tr("genre") << tr("Lenght") << tr("Bitrate") << tr("Sample Rate") << tr("Path");
 
-    tableMusic = new QTableWidget(0, 6);
+    tableMusic = new QTableWidget(0, 9);
     tableMusic->setHorizontalHeaderLabels(headers);
     tableMusic->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
     tableMusic->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -192,10 +191,10 @@ void AudioWindow::listContentPlaylist(int playlistNumber)
 void AudioWindow::getAndShowInfoMusic(QString path)
 {
     int numberOflines = tableMusic->rowCount()+1;
-    qDebug() << numberOflines;
     tableMusic->setRowCount(numberOflines);
 
-    //Get metadata from the song
+    //Get metadata from the song and put them in the table
+    //"Artist" "Title" "Album" "Year" "genre" "Lenght" "Bitrate" "Sample Rate" "Path"
     SongInfo* song = new SongInfo(path);
 
     QTableWidgetItem* artistItem = new QTableWidgetItem(song->getArtist());
@@ -214,13 +213,25 @@ void AudioWindow::getAndShowInfoMusic(QString path)
     yearItem->setFlags(yearItem->flags() ^ Qt::ItemIsEditable);
     tableMusic->setItem(numberOflines-1, 3, yearItem);
 
+    QTableWidgetItem* genreItem = new QTableWidgetItem(song->getGenre());
+    genreItem->setFlags(genreItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 4, genreItem);
+
     QTableWidgetItem* lenghtItem = new QTableWidgetItem(song->getLength());
     lenghtItem->setFlags(lenghtItem->flags() ^ Qt::ItemIsEditable);
-    tableMusic->setItem(numberOflines-1, 4, lenghtItem);
+    tableMusic->setItem(numberOflines-1, 5, lenghtItem);
 
-    QTableWidgetItem* pathItem = new QTableWidgetItem(path);
+    QTableWidgetItem* bitrateItem = new QTableWidgetItem(song->getBitrate());
+    bitrateItem->setFlags(bitrateItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 6, bitrateItem);
+
+    QTableWidgetItem* sampleRateItem = new QTableWidgetItem(song->getSampleRate());
+    sampleRateItem->setFlags(sampleRateItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 7, sampleRateItem);
+
+    QTableWidgetItem* pathItem = new QTableWidgetItem(song->getPath());
     pathItem->setFlags(pathItem->flags() ^ Qt::ItemIsEditable);
-    tableMusic->setItem(numberOflines-1, 5, pathItem);
+    tableMusic->setItem(numberOflines-1, 8, pathItem);
 }
 
 void AudioWindow::addSongPressed()
@@ -350,13 +361,13 @@ void AudioWindow::songDoubleClick(int y, int x)
     //Stream the audio
     StreamEngine &streamEngine = StreamEngine::getInstance();
     streamEngine.connexionToServer();
-    streamEngine.playMusic(tableMusic->item(y,5)->text());
+    streamEngine.playMusic(tableMusic->item(y,8)->text());
 
     isPlaying = true;
     playingSong = selectedSong = y;
     buttonPlay->setEnabled(false);
     buttonStop->setEnabled(true);
-    emit playingSongChanged(tableMusic->itemAt(0, playingSong)->text() + tableMusic->itemAt(1, playingSong)->text());
+    emit playingSongChanged(tableMusic->itemAt(playingSong, 0)->text() + " - " + tableMusic->itemAt(playingSong, 1)->text());
 }
 
 void AudioWindow::stopPressed()
@@ -396,7 +407,6 @@ void AudioWindow::nextPressed()
 
 void AudioWindow::tableClicked(int y, int x)
 {
-    qDebug() << "Row : " << y << " Column : " << x << " Path: " << tableMusic->item(y,5)->text();
     selectedSong = y;
 }
 

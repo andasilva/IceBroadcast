@@ -76,4 +76,4 @@ FORMS +=
 
 DISTFILES +=
 
-unix:!macx: LIBS += -lmp3lame
+unix:!macx: LIBS += -lmp3lame -ltag

@@ -4,35 +4,37 @@
 SongInfo::SongInfo(QString path)
 {
     this->path = path;
+    readTags();
+    readAudioInfo();
+}
 
-    qDebug() << "Path : " << path;
-    QMediaPlayer* player = new QMediaPlayer();
-    player->setMedia(QMediaContent(QUrl::fromLocalFile(path)));
-    player->setVolume(50);
-    //player->play();
+void SongInfo::readTags()
+{
+    TagLib::MPEG::File file(TagLib::FileName(path.toLocal8Bit()));
 
-    if (player->isMetaDataAvailable())
+    if (file.isValid() && file.tag())
     {
-        qDebug() << player->metaData(QMediaMetaData::AlbumArtist).toString();
-        qDebug() << player->metaData(QMediaMetaData::Title).toString();
+        TagLib::ID3v2::Tag *fileTag = file.ID3v2Tag(true);
 
-        /*
-        if (coverLabel) {
-            QUrl url = player->metaData(QMediaMetaData::CoverArtUrlLarge).value<QUrl>();
-
-            coverLabel->setPixmap(!url.isEmpty()
-                    ? QPixmap(url.toString())
-                    : QPixmap());
-        }
-        */
+        this->artist = QString::fromUtf8(fileTag->artist().toCString(true));
+        this->title = QString::fromUtf8(fileTag->title().toCString(true));
+        this->album = QString::fromUtf8(fileTag->album().toCString(true));
+        this->year = QString::number(fileTag->year());
+        this->genre = QString::fromUtf8(fileTag->genre().toCString(true));
     }
+}
 
-    /*
-    qDebug() << "metadata : " << player->isMetaDataAvailable();
-    this->title = player->metaData("Title").toString();
-    this->artist = player->metaData("Artist").toString();
-    delete player;
-    */
+void SongInfo::readAudioInfo()
+{
+    TagLib::FileRef ref(TagLib::FileName(path.toLocal8Bit()));
+
+    if (ref.isNull() == false && ref.audioProperties())
+    {
+        TagLib::AudioProperties *properties = ref.audioProperties();
+        this->lenght = QString::number(properties->length());
+        this->sampleRate = QString::number(properties->sampleRate());
+        this->bitrate = QString::number(properties->bitrate());
+    }
 }
 
 QString SongInfo::getArtist()
@@ -53,6 +55,21 @@ QString SongInfo::getAlbum()
 QString SongInfo::getLength()
 {
     return lenght;
+}
+
+QString SongInfo::getGenre()
+{
+    return genre;
+}
+
+QString SongInfo::getBitrate()
+{
+    return bitrate;
+}
+
+QString SongInfo::getSampleRate()
+{
+    return sampleRate;
 }
 
 QString SongInfo::getPath()

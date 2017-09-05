@@ -2,6 +2,10 @@
 #define SONGINFO_H
 
 #include <QtWidgets>
+#include <taglib/fileref.h>
+#include <taglib/id3v2tag.h>
+#include <taglib/mpegfile.h>
+#include <taglib/tag.h>
 
 class SongInfo
 {
@@ -11,17 +15,28 @@ public:
     QString getArtist();
     QString getTitle();
     QString getAlbum();
-    QString getLength();
     QString getPath();
     QString getYear();
+    QString getGenre();
+
+    QString getLength();
+    QString getBitrate();
+    QString getSampleRate();
 
 private:
     QString artist;
     QString title;
     QString album;
-    QString lenght;
     QString path;
     QString year;
+    QString genre;
+
+    QString lenght;
+    QString bitrate;
+    QString sampleRate;
+
+    void readTags();
+    void readAudioInfo();
 };
 
 #endif // SONGINFO_H
