@@ -6,15 +6,33 @@ SongInfo::SongInfo(QString path)
     this->path = path;
 
     qDebug() << "Path : " << path;
-    QMediaPlayer* player = new QMediaPlayer;
+    QMediaPlayer* player = new QMediaPlayer();
     player->setMedia(QMediaContent(QUrl::fromLocalFile(path)));
     player->setVolume(50);
     //player->play();
 
+    if (player->isMetaDataAvailable())
+    {
+        qDebug() << player->metaData(QMediaMetaData::AlbumArtist).toString();
+        qDebug() << player->metaData(QMediaMetaData::Title).toString();
+
+        /*
+        if (coverLabel) {
+            QUrl url = player->metaData(QMediaMetaData::CoverArtUrlLarge).value<QUrl>();
+
+            coverLabel->setPixmap(!url.isEmpty()
+                    ? QPixmap(url.toString())
+                    : QPixmap());
+        }
+        */
+    }
+
+    /*
     qDebug() << "metadata : " << player->isMetaDataAvailable();
     this->title = player->metaData("Title").toString();
     this->artist = player->metaData("Artist").toString();
     delete player;
+    */
 }
 
 QString SongInfo::getArtist()

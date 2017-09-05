@@ -23,6 +23,7 @@ private:
 
     QListWidget* listPlaylist;
     QLCDNumber* time;
+    QLCDNumber* timeLenght;
     QTableWidget* tableMusic;
     QSlider* slider;
     QLabel* labelPlaylist;
@@ -31,12 +32,14 @@ private:
     int selectedSong;
     int playingSong;
     bool isPlaying;
+    QTimer* timer;
 
     void loadPlaylistAvaible();
     void listContentPlaylist(int playlistNumber);
     void getAndShowInfoMusic(QString path);
     void setupUi();
 signals:
+    void playingSongChanged(QString songName);
 
 private slots:
     void addSongPressed();
@@ -51,6 +54,7 @@ private slots:
 
     void tableClicked(int,int);
     void updateCurrentPlaylist(int playlistNumber);
+    void updateTime();
 
 };
 

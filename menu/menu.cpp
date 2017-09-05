@@ -36,8 +36,6 @@ Menu::Menu(QWidget *parent)
     buttonLiveTV->move(0,buttonLiveAudio->pos().y()+sizeHeightButton + marginBetweenButtons);
     buttonSettings->move(0,buttonLiveTV->pos().y()+sizeHeightButton + marginBetweenButtons);
 
-
-
     //Connect each button to update the state of the old button selected
     connect(buttonDashBoard,&ButtonMenu::buttonClicked, this,&Menu::updateButtonCurrentlySelected);
     connect(buttonMusic,&ButtonMenu::buttonClicked, this,&Menu::updateButtonCurrentlySelected);

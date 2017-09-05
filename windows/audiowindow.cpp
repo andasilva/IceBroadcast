@@ -1,13 +1,105 @@
 #include "audiowindow.h"
 #include <QtWidgets>
 #include "audio/songinfo.h"
+#include "dashboardwindow.h"
 
 AudioWindow::AudioWindow(QWidget *parent) : QWidget(parent)
 {
     isPlaying = false;
+    currentPlaylist = -1;
+    selectedSong = -1;
+    playingSong = -1;
+
+    timer = new QTimer(this);
+    timer->setInterval(1000);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateTime()));
+
     setupUi();
     loadPlaylistAvaible();
+}
+
+void AudioWindow::setupUi()
+{
+    //Instanciation
+    buttonAddPlaylist = new QPushButton(tr("Add Playlist"));
+    buttonRemovePlaylist = new QPushButton(tr("RemovePlaylist"));
+    listPlaylist = new QListWidget();
+    listPlaylist->setMaximumWidth(200);
+
+    buttonPlayPause = new QPushButton(tr("Play/Pause"));
+    buttonStop = new QPushButton(tr("Stop"));
+    buttonPrevious = new QPushButton(tr("Previous"));
+    buttonNext = new QPushButton(tr("Next"));
+
+    buttonAddSong = new QPushButton(tr("Add Song"));
+    buttonRemoveSong = new QPushButton(tr("Remove song"));
+
+    slider = new QSlider(Qt::Horizontal);
+    time = new QLCDNumber();
+    time->setDigitCount(5);
+    time->display(QString("00:00"));
+    timeLenght = new QLCDNumber();
+    timeLenght->setDigitCount(5);
+    timeLenght->display(QString("00:00"));
+
+    labelPlaylist = new QLabel(tr("<b>Playlists</b>"));
+
+    QStringList headers;
+    headers << tr("Artist") << tr("Title") << tr("Album") << tr("Year") << tr("Lenght") << tr("Path");
+
+    tableMusic = new QTableWidget(0, 6);
+    tableMusic->setHorizontalHeaderLabels(headers);
+    tableMusic->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
+    tableMusic->setSelectionMode(QAbstractItemView::SingleSelection);
+    tableMusic->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    //Playlist layout
+    QVBoxLayout *playlistLayout = new QVBoxLayout;
+    playlistLayout->addWidget(labelPlaylist);
+    playlistLayout->addWidget(listPlaylist);
+    playlistLayout->addWidget(buttonAddPlaylist);
+    playlistLayout->addWidget(buttonRemovePlaylist);
+
+    //Player layouts
+    QHBoxLayout *topActionsLayout = new QHBoxLayout;
+    topActionsLayout->addWidget(buttonPrevious);
+    topActionsLayout->addWidget(buttonStop);
+    topActionsLayout->addWidget(buttonPlayPause);
+    topActionsLayout->addWidget(buttonNext);
+    topActionsLayout->addWidget(time);
+    topActionsLayout->addWidget(slider);
+    topActionsLayout->addWidget(timeLenght);
+
+    QHBoxLayout *bottomActionsLayout = new QHBoxLayout;
+    bottomActionsLayout->addStretch(10);
+    bottomActionsLayout->addWidget(buttonAddSong);
+    bottomActionsLayout->addWidget(buttonRemoveSong);
+    bottomActionsLayout->addStretch(10);
+
+    QVBoxLayout *playerLayout = new QVBoxLayout;
+    playerLayout->addLayout(topActionsLayout);
+    playerLayout->addWidget(tableMusic);
+    playerLayout->addLayout(bottomActionsLayout);
+
+    //Main Layout
+    QHBoxLayout *mainLayout = new QHBoxLayout;
+    mainLayout->addLayout(playlistLayout);
+    mainLayout->addLayout(playerLayout);
+
+    this->setLayout(mainLayout);
+
+    //Connections
+    connect(buttonPlayPause, &QPushButton::clicked, this, &AudioWindow::playPausePressed);
+    connect(buttonPrevious, &QPushButton::clicked, this, &AudioWindow::previousPressed);
+    connect(buttonNext, &QPushButton::clicked, this, &AudioWindow::nextPressed);
+    connect(buttonStop, &QPushButton::clicked, this, &AudioWindow::stopPressed);
+    connect(buttonAddPlaylist, &QPushButton::clicked, this, &AudioWindow::addPlaylistPressed);
+    connect(buttonRemovePlaylist, &QPushButton::clicked, this, &AudioWindow::removePlaylistPressed);
+    connect(buttonAddSong, &QPushButton::clicked, this, &AudioWindow::addSongPressed);
+    connect(buttonRemoveSong, &QPushButton::clicked, this, &AudioWindow::removeSongPressed);
+    connect(tableMusic, SIGNAL(cellPressed(int,int)),this, SLOT(tableClicked(int,int)));
     connect(listPlaylist,&QListWidget::currentRowChanged,this,&AudioWindow::updateCurrentPlaylist);
+    connect(tableMusic,&QTableWidget::cellDoubleClicked,this,&AudioWindow::songDoubleClick);
 }
 
 void AudioWindow::loadPlaylistAvaible()
@@ -16,28 +108,40 @@ void AudioWindow::loadPlaylistAvaible()
     QDir directory(path);
 
     //If folder exists then list all the playlist
-    if(directory.exists()){
+    if(directory.exists())
+    {
         QStringList filter;
         filter << "*.txt";
         QStringList listFiles = directory.entryList(filter);
+
         //If there is no playlist
-        if(listFiles.empty()){
+        if(listFiles.empty())
+        {
             buttonRemovePlaylist->setDisabled(true);
-        }else{ //Load title playlist
-            foreach(QFileInfo file, listFiles){
+        }
+        else
+        {
+            //Load title playlist
+            foreach(QFileInfo file, listFiles)
+            {
                 listPlaylist->addItem(file.baseName());
             }
+
             listPlaylist->item(0)->setSelected(true);
             currentPlaylist = 0;
             listContentPlaylist(0);
             buttonRemovePlaylist->setDisabled(false);
         }
-
-    }else{ //create directory
+    }
+    else
+    {
+        //create directory
         directory.mkpath(path);
         //Create default playlist
         QFile file(path+"default.txt");
-        if(file.open(QIODevice::ReadWrite)){
+
+        if(file.open(QIODevice::ReadWrite))
+        {
             file.close();
             listPlaylist->addItem("default");
             listPlaylist->item(0)->setSelected(true);
@@ -101,85 +205,6 @@ void AudioWindow::getAndShowInfoMusic(QString path)
     tableMusic->setItem(numberOflines-1, 5, pathItem);
 }
 
-void AudioWindow::setupUi()
-{
-    //Instanciation
-    buttonAddPlaylist = new QPushButton(tr("Add Playlist"));
-    buttonRemovePlaylist = new QPushButton(tr("RemovePlaylist"));
-    listPlaylist = new QListWidget();
-    listPlaylist->setMaximumWidth(200);
-
-    buttonPlayPause = new QPushButton(tr("Play/Pause"));
-    buttonStop = new QPushButton(tr("Stop"));
-    buttonPrevious = new QPushButton(tr("Previous"));
-    buttonNext = new QPushButton(tr("Next"));
-
-    buttonAddSong = new QPushButton(tr("Add Song"));
-    buttonRemoveSong = new QPushButton(tr("Remove song"));
-
-    slider = new QSlider(Qt::Horizontal);
-    time = new QLCDNumber();
-    time->setDigitCount(5);
-    time->display(QString("00:00"));
-
-    labelPlaylist = new QLabel(tr("<b>Playlists</b>"));
-
-    QStringList headers;
-    headers << tr("Artist") << tr("Title") << tr("Album") << tr("Year") << tr("Lenght") << tr("Path");
-
-    tableMusic = new QTableWidget(0, 6);
-    tableMusic->setHorizontalHeaderLabels(headers);
-    tableMusic->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
-    tableMusic->setSelectionMode(QAbstractItemView::SingleSelection);
-    tableMusic->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-    //Playlist layout
-    QVBoxLayout *playlistLayout = new QVBoxLayout;
-    playlistLayout->addWidget(labelPlaylist);
-    playlistLayout->addWidget(listPlaylist);
-    playlistLayout->addWidget(buttonAddPlaylist);
-    playlistLayout->addWidget(buttonRemovePlaylist);
-
-    //Player layouts
-    QHBoxLayout *topActionsLayout = new QHBoxLayout;
-    topActionsLayout->addWidget(buttonPrevious);
-    topActionsLayout->addWidget(buttonStop);
-    topActionsLayout->addWidget(buttonPlayPause);
-    topActionsLayout->addWidget(buttonNext);
-    topActionsLayout->addWidget(slider);
-    topActionsLayout->addWidget(time);
-
-    QHBoxLayout *bottomActionsLayout = new QHBoxLayout;
-    bottomActionsLayout->addStretch(10);
-    bottomActionsLayout->addWidget(buttonAddSong);
-    bottomActionsLayout->addWidget(buttonRemoveSong);
-    bottomActionsLayout->addStretch(10);
-
-    QVBoxLayout *playerLayout = new QVBoxLayout;
-    playerLayout->addLayout(topActionsLayout);
-    playerLayout->addWidget(tableMusic);
-    playerLayout->addLayout(bottomActionsLayout);
-
-    //Main Layout
-    QHBoxLayout *mainLayout = new QHBoxLayout;
-    mainLayout->addLayout(playlistLayout);
-    mainLayout->addLayout(playerLayout);
-
-    this->setLayout(mainLayout);
-
-    //Connections
-    connect(buttonPlayPause, &QPushButton::clicked, this, &AudioWindow::playPausePressed);
-    connect(buttonPrevious, &QPushButton::clicked, this, &AudioWindow::previousPressed);
-    connect(buttonNext, &QPushButton::clicked, this, &AudioWindow::nextPressed);
-    connect(buttonStop, &QPushButton::clicked, this, &AudioWindow::stopPressed);
-    connect(buttonAddPlaylist, &QPushButton::clicked, this, &AudioWindow::addPlaylistPressed);
-    connect(buttonRemovePlaylist, &QPushButton::clicked, this, &AudioWindow::removePlaylistPressed);
-    connect(buttonAddSong, &QPushButton::clicked, this, &AudioWindow::addSongPressed);
-    connect(buttonRemoveSong, &QPushButton::clicked, this, &AudioWindow::removeSongPressed);
-    connect(tableMusic, SIGNAL(cellPressed(int,int)),this, SLOT(tableClicked(int,int)));
-    connect(tableMusic,&QTableWidget::cellDoubleClicked,this,&AudioWindow::songDoubleClick);
-
-}
 
 void AudioWindow::addSongPressed()
 {
@@ -296,11 +321,15 @@ void AudioWindow::playPausePressed()
 
 }
 
+
 void AudioWindow::songDoubleClick(int y, int x)
 {
     StreamEngine &streamEngine = StreamEngine::getInstance();
     streamEngine.connexionToServer();
     streamEngine.playMusic(tableMusic->item(y,5)->text());
+    playingSong = selectedSong;
+    emit playingSongChanged(tableMusic->itemAt(0, playingSong)->text() + tableMusic->itemAt(1, playingSong)->text());
+
 }
 
 
@@ -308,13 +337,16 @@ void AudioWindow::songDoubleClick(int y, int x)
 void AudioWindow::stopPressed()
 {
     isPlaying = false;
+    StreamEngine& streamEngine = StreamEngine::getInstance();
 }
 
 void AudioWindow::previousPressed()
 {
     if(selectedSong > 0)
     {
+        stopPressed();
         tableMusic->selectRow(selectedSong - 1);
+        playPausePressed();
     }
 }
 
@@ -322,7 +354,9 @@ void AudioWindow::nextPressed()
 {
     if(selectedSong < tableMusic->rowCount())
     {
+        stopPressed();
         tableMusic->selectRow(selectedSong + 1);
+        playPausePressed();
     }
 }
 
@@ -343,4 +377,9 @@ void AudioWindow::updateCurrentPlaylist(int playlistNumber)
         tableMusic->setRowCount(0);
         listContentPlaylist(playlistNumber);
     }
+}
+
+void AudioWindow::updateTime()
+{
+
 }
