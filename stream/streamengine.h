@@ -4,6 +4,7 @@
 #include "lib/shout.h"
 #include <QtNetwork>
 #include <QtMultimedia>
+#include "workerstream.h"
 
 class StreamEngine:public QObject
 {
@@ -20,18 +21,25 @@ public:
 
     shout_t *getConnexion() const;
 
+    QString *getCurrentlyPlaying() const;
+
 private:
+    QThread *thread;
     StreamEngine(QObject *parent=0);
     shout_t *connexion;
     bool isRunning;
     QTimer* timerCheckConnexion;
     QFile *mp3File;
-    QThread *threadPlayAudio;
+    WorkerStream* worker;
+    QString *currentlyPlaying;
 
 public slots:
     void connexionToServer();
     void checkConnexion();
-    void sendMusicTest();
+    void playMusic(QString music);
+
+signals:
+    void connexionEstablished(bool response);
 
 };
 

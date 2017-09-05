@@ -1,5 +1,6 @@
 #include "dashboardwindow.h"
 #include <QtWidgets>
+#include "stream/streamengine.h"
 
 DashboardWindow::DashboardWindow(QWidget *parent) : QWidget(parent)
 {
@@ -33,6 +34,7 @@ DashboardWindow::DashboardWindow(QWidget *parent) : QWidget(parent)
     mainLayout->addStretch();
     setLayout(mainLayout);
 
+    connect(&(StreamEngine::getInstance()),&StreamEngine::connexionEstablished,this,&DashboardWindow::updateServerStatus);
 }
 
 void DashboardWindow::setLogo()
@@ -41,7 +43,6 @@ void DashboardWindow::setLogo()
 
     logo->setPixmap(QPixmap(settings.value("logoPath").toString()));
     qDebug() << "New logo setted: " << settings.value("logoPath").toString();
-
 
     logo->repaint();
 }

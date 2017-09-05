@@ -177,6 +177,8 @@ void AudioWindow::setupUi()
     connect(buttonAddSong, &QPushButton::clicked, this, &AudioWindow::addSongPressed);
     connect(buttonRemoveSong, &QPushButton::clicked, this, &AudioWindow::removeSongPressed);
     connect(tableMusic, SIGNAL(cellPressed(int,int)),this, SLOT(tableClicked(int,int)));
+    connect(tableMusic,&QTableWidget::cellDoubleClicked,this,&AudioWindow::songDoubleClick);
+
 }
 
 void AudioWindow::addSongPressed()
@@ -291,17 +293,17 @@ void AudioWindow::removePlaylistPressed()
 
 void AudioWindow::playPausePressed()
 {
-    StreamEngine& streamEngine = StreamEngine::getInstance();
 
-    if(isPlaying == true)
-    {
-
-    }
-    else
-    {
-        playingSong = selectedSong;
-    }
 }
+
+void AudioWindow::songDoubleClick(int y, int x)
+{
+    StreamEngine &streamEngine = StreamEngine::getInstance();
+    streamEngine.connexionToServer();
+    streamEngine.playMusic(tableMusic->item(y,5)->text());
+}
+
+
 
 void AudioWindow::stopPressed()
 {
@@ -326,7 +328,7 @@ void AudioWindow::nextPressed()
 
 void AudioWindow::tableClicked(int y, int x)
 {
-    qDebug() << "Row : " << y << " Column : " << x;
+    qDebug() << "Row : " << y << " Column : " << x << " Path: " << tableMusic->item(y,5)->text();
     selectedSong = y;
 }
 

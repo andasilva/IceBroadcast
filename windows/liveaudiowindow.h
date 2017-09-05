@@ -37,7 +37,6 @@ public slots:
 private slots:
     void playLive();
     void pauseLive();
-    void playTest();
 
     void updateStatus(QMediaRecorder::Status status);
     void onStateChanged(QMediaRecorder::State state);

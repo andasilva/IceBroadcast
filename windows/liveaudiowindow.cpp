@@ -75,7 +75,7 @@ void LiveAudioWindow::setupUi()
     this->setLayout(mainLayout);
 
     //Connections
-    connect(buttonStartStop,&QPushButton::clicked,this,&LiveAudioWindow::playTest);
+    //connect(buttonStartStop,&QPushButton::clicked,this,&LiveAudioWindow::playTest);
     connect(buttonStart, &QPushButton::clicked,this,&LiveAudioWindow::playLive);
 }
 
@@ -138,13 +138,6 @@ void LiveAudioWindow::processBuffer(const QAudioBuffer& buffer)
 void LiveAudioWindow::pauseLive()
 {
 
-}
-
-void LiveAudioWindow::playTest()
-{
-    StreamEngine& streamEngine = StreamEngine::getInstance();
-    streamEngine.connexionToServer();
-    streamEngine.sendMusicTest();
 }
 
 void LiveAudioWindow::updateStatus(QMediaRecorder::Status status)

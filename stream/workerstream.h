@@ -11,10 +11,13 @@ class WorkerStream : public QObject
 public:
     explicit WorkerStream(QObject *parent = nullptr);
 
-signals:
+private:
+    FILE* pFile;
+    signals:
 
-public slots:
-    void start();
+        public slots:
+        void start();
+    void playAnotherSong(QString music);
 };
 
 #endif // WORKERSTREAM_H

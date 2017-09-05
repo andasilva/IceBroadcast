@@ -6,12 +6,23 @@
 StreamEngine::StreamEngine(QObject *parent)
     :QObject(parent)
 {
+    currentlyPlaying = new QString("");
+
     shout_init();
     connexion = shout_new();
     isRunning = false;
     timerCheckConnexion = new QTimer(this);
-    threadPlayAudio = new QThread;
+
+    thread = new QThread(this);
+    worker = new WorkerStream;
+    worker->moveToThread(thread);
+    QMetaObject::invokeMethod(worker,"start");
     connect(timerCheckConnexion,&QTimer::timeout,this,&StreamEngine::checkConnexion);
+}
+
+QString *StreamEngine::getCurrentlyPlaying() const
+{
+    return currentlyPlaying;
 }
 
 shout_t *StreamEngine::getConnexion() const
@@ -36,75 +47,66 @@ void StreamEngine::sendDataToPlay(const unsigned char *data, size_t length)
 
 void StreamEngine::connexionToServer()
 {
-
     if(!isRunning){
         qDebug() << "Trying to connect to server...";
         QSettings settings;
 
+        qDebug() << settings.value("username").toString().toStdString().c_str()  << settings.value("username").toString().toStdString().c_str() << settings.value("password").toString().toStdString().c_str() << settings.value("mountpoint").toString().toStdString().c_str() << settings.value("server").toString().toStdString().c_str();
         shout_set_user(connexion,settings.value("username").toString().toStdString().c_str());
         shout_set_password(connexion, settings.value("password").toString().toStdString().c_str());
         shout_set_mount(connexion, settings.value("mountpoint").toString().toStdString().c_str());
         shout_set_host(connexion,settings.value("server").toString().toStdString().c_str());
         shout_set_protocol(connexion, SHOUT_PROTOCOL_HTTP);
         shout_set_format(connexion,SHOUT_FORMAT_MP3);
-        int resultConnexion = shout_open(connexion);
-        switch(resultConnexion){
-        case SHOUTERR_SUCCESS:
-            qDebug() << "login sucessfull!";
-            isRunning = true;
-            timerCheckConnexion->start(15000); //TODO: get 15000 from server file?
-            break;
-        case SHOUTERR_NOLOGIN:
-            qDebug() << "login error" ;
-            break;
-        default:
-            qDebug() << resultConnexion;
-            break;
-        }
     }
+
+    int resultConnexion = shout_open(connexion);
+    switch(resultConnexion){
+    case SHOUTERR_SUCCESS:
+        qDebug() << "login sucessfull!";
+        isRunning = true;
+        //timerCheckConnexion->start(1500); //TODO: get 15000 from server file?
+        emit connexionEstablished(true);
+        break;
+    case SHOUTERR_NOLOGIN:
+        qDebug() << "login error" ;
+        break;
+    default:
+        qDebug() << "Error connexion:" << resultConnexion;
+        break;
+    }
+
 }
 
 
 
 void StreamEngine::checkConnexion()
 {
+    qDebug() << "Check if connexion active: " << shout_get_connected(connexion);
+
     if(shout_get_connected(connexion) != SHOUTERR_CONNECTED){
         qDebug() << "Connexion interrupted";
         timerCheckConnexion->stop();
+        emit connexionEstablished(false);
     }
 }
 
-void StreamEngine::sendMusicTest()
+
+void StreamEngine::playMusic(QString music)
 {
-    WorkerStream* worker = new WorkerStream;
-    QThread *thread = new QThread(this);
-    worker->moveToThread(thread);
-    QMetaObject::invokeMethod(worker,"start");
-    thread->start();
+    qDebug() << "Play music: " << music ;
+    currentlyPlaying = new QString(music);
 
-    /*
-    FILE * pFile;
-    unsigned char buff[4096];
 
-    pFile = fopen ("/home/angelkiro/Musique/test.mp3" , "r");
-    if (pFile == NULL) perror ("Error opening file");
-
-    long read, ret;
-
-    while (true) {
-        read = fread(buff, 1, sizeof(buff), pFile);
-        qDebug() << read;
-        if (read > 0) {
-            ret = shout_send(connexion, buff, read);
-            if (ret != SHOUTERR_SUCCESS) {
-                printf("DEBUG: Send error: %s\n", shout_get_error(connexion));
-                break;
-            }
-        } else {
-            break;
-        }
-        shout_sync(connexion);
-    }*/
+    if(!thread->isRunning()){
+        thread = new QThread;
+        worker = new WorkerStream;
+        worker->moveToThread(thread);
+        QMetaObject::invokeMethod(worker,"start");
+        thread->start();
+    }else{
+        worker->playAnotherSong(music);
+    }
 }
 
 

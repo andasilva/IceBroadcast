@@ -12,6 +12,7 @@ public:
 
 private:
     QLabel *logo, *labelMusicBeingPlayed, *labelServerStatus;
+
 signals:
 
 public slots:

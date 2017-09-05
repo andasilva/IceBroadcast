@@ -44,6 +44,7 @@ private slots:
     void addPlaylistPressed();
     void removePlaylistPressed();
     void playPausePressed();
+    void songDoubleClick(int y, int x);
     void stopPressed();
     void previousPressed();
     void nextPressed();
