@@ -35,9 +35,9 @@ void AudioWindow::setupUi()
     time = new QLCDNumber();
     time->setDigitCount(5);
     time->display(QString("00:00"));
-    timeLenght = new QLCDNumber();
-    timeLenght->setDigitCount(5);
-    timeLenght->display(QString("00:00"));
+    timeTotal = new QLCDNumber();
+    timeTotal->setDigitCount(5);
+    timeTotal->display(QString("00:00"));
 
     labelPlaylist = new QLabel(tr("<b>Playlists</b>"));
 
@@ -65,7 +65,7 @@ void AudioWindow::setupUi()
     topActionsLayout->addWidget(buttonNext);
     topActionsLayout->addWidget(time);
     topActionsLayout->addWidget(slider);
-    topActionsLayout->addWidget(timeLenght);
+    topActionsLayout->addWidget(timeTotal);
 
     QHBoxLayout *bottomActionsLayout = new QHBoxLayout;
     bottomActionsLayout->addStretch(10);
@@ -363,11 +363,15 @@ void AudioWindow::songDoubleClick(int y, int x)
     streamEngine.connexionToServer();
     streamEngine.playMusic(tableMusic->item(y,8)->text());
 
+    //Update UI
     isPlaying = true;
     playingSong = selectedSong = y;
     buttonPlay->setEnabled(false);
     buttonStop->setEnabled(true);
-    emit playingSongChanged(tableMusic->itemAt(playingSong, 0)->text() + " - " + tableMusic->itemAt(playingSong, 1)->text());
+
+    QDateTime dateTime = QDateTime::fromTime_t(tableMusic->item(playingSong, 5)->text().toInt());
+    timeTotal->display(dateTime.toString("mm:ss"));
+    emit playingSongChanged(tableMusic->item(playingSong, 0)->text() + " - " + tableMusic->item(playingSong, 1)->text());
 }
 
 void AudioWindow::stopPressed()

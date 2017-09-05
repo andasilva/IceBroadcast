@@ -23,7 +23,7 @@ private:
 
     QListWidget* listPlaylist;
     QLCDNumber* time;
-    QLCDNumber* timeLenght;
+    QLCDNumber* timeTotal;
     QTableWidget* tableMusic;
     QSlider* slider;
     QLabel* labelPlaylist;
