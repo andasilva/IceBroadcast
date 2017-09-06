@@ -16,14 +16,14 @@ private:
     QPushButton* buttonRemovePlaylist;
     QPushButton* buttonAddSong;
     QPushButton* buttonRemoveSong;
-    QPushButton* buttonPlayPause;
+    QPushButton* buttonPlay;
     QPushButton* buttonStop;
     QPushButton* buttonPrevious;
     QPushButton* buttonNext;
 
     QListWidget* listPlaylist;
     QLCDNumber* time;
-    QLCDNumber* timeLenght;
+    QLCDNumber* timeTotal;
     QTableWidget* tableMusic;
     QSlider* slider;
     QLabel* labelPlaylist;
@@ -33,11 +33,13 @@ private:
     int playingSong;
     bool isPlaying;
     QTimer* timer;
+    int elapsedSeconds;
 
     void loadPlaylistAvaible();
     void listContentPlaylist(int playlistNumber);
     void getAndShowInfoMusic(QString path);
     void setupUi();
+    void initUi();
 signals:
     void playingSongChanged(QString songName);
 
@@ -46,7 +48,7 @@ private slots:
     void removeSongPressed();
     void addPlaylistPressed();
     void removePlaylistPressed();
-    void playPausePressed();
+    void playPressed();
     void songDoubleClick(int y, int x);
     void stopPressed();
     void previousPressed();

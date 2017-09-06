@@ -60,6 +60,11 @@ void StreamEngine::sendDataToPlay(const unsigned char *data, size_t length)
     shout_sync(connexion);
 }
 
+void StreamEngine::stopMusic()
+{
+
+}
+
 void StreamEngine::connexionToServer()
 {
     if(!isRunning){

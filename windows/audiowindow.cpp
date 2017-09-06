@@ -5,49 +5,54 @@
 
 AudioWindow::AudioWindow(QWidget *parent) : QWidget(parent)
 {
-    isPlaying = false;
-    currentPlaylist = -1;
-    selectedSong = -1;
-    playingSong = -1;
-
     timer = new QTimer(this);
     timer->setInterval(1000);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTime()));
 
     setupUi();
     loadPlaylistAvaible();
+    initUi();
 }
 
 void AudioWindow::setupUi()
 {
     //Instanciation
     buttonAddPlaylist = new QPushButton(tr("Add Playlist"));
-    buttonRemovePlaylist = new QPushButton(tr("RemovePlaylist"));
+    buttonRemovePlaylist = new QPushButton(tr("Remove Playlist"));
     listPlaylist = new QListWidget();
     listPlaylist->setMaximumWidth(200);
 
-    buttonPlayPause = new QPushButton(tr("Play/Pause"));
+    buttonPlay = new QPushButton(tr("Play"));
     buttonStop = new QPushButton(tr("Stop"));
+    buttonStop->setEnabled(false);
     buttonPrevious = new QPushButton(tr("Previous"));
     buttonNext = new QPushButton(tr("Next"));
 
     buttonAddSong = new QPushButton(tr("Add Song"));
-    buttonRemoveSong = new QPushButton(tr("Remove song"));
+    buttonRemoveSong = new QPushButton(tr("Remove Song"));
 
     slider = new QSlider(Qt::Horizontal);
+    slider->setEnabled(false);
+    slider->setMinimum(0);
+
     time = new QLCDNumber();
+    time->setSegmentStyle(QLCDNumber::Flat);
+    time->setFrameStyle(QFrame::NoFrame);
     time->setDigitCount(5);
     time->display(QString("00:00"));
-    timeLenght = new QLCDNumber();
-    timeLenght->setDigitCount(5);
-    timeLenght->display(QString("00:00"));
+
+    timeTotal = new QLCDNumber();
+    timeTotal->setSegmentStyle(QLCDNumber::Flat);
+    timeTotal->setFrameStyle(QFrame::NoFrame);
+    timeTotal->setDigitCount(5);
+    timeTotal->display(QString("00:00"));
 
     labelPlaylist = new QLabel(tr("<b>Playlists</b>"));
 
     QStringList headers;
-    headers << tr("Artist") << tr("Title") << tr("Album") << tr("Year") << tr("Lenght") << tr("Path");
+    headers << tr("Artist") << tr("Title") << tr("Album") << tr("Year") << tr("genre") << tr("Lenght") << tr("Bitrate") << tr("Sample Rate") << tr("Path");
 
-    tableMusic = new QTableWidget(0, 6);
+    tableMusic = new QTableWidget(0, 9);
     tableMusic->setHorizontalHeaderLabels(headers);
     tableMusic->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
     tableMusic->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -64,11 +69,11 @@ void AudioWindow::setupUi()
     QHBoxLayout *topActionsLayout = new QHBoxLayout;
     topActionsLayout->addWidget(buttonPrevious);
     topActionsLayout->addWidget(buttonStop);
-    topActionsLayout->addWidget(buttonPlayPause);
+    topActionsLayout->addWidget(buttonPlay);
     topActionsLayout->addWidget(buttonNext);
     topActionsLayout->addWidget(time);
     topActionsLayout->addWidget(slider);
-    topActionsLayout->addWidget(timeLenght);
+    topActionsLayout->addWidget(timeTotal);
 
     QHBoxLayout *bottomActionsLayout = new QHBoxLayout;
     bottomActionsLayout->addStretch(10);
@@ -89,7 +94,7 @@ void AudioWindow::setupUi()
     this->setLayout(mainLayout);
 
     //Connections
-    connect(buttonPlayPause, &QPushButton::clicked, this, &AudioWindow::playPausePressed);
+    connect(buttonPlay, &QPushButton::clicked, this, &AudioWindow::playPressed);
     connect(buttonPrevious, &QPushButton::clicked, this, &AudioWindow::previousPressed);
     connect(buttonNext, &QPushButton::clicked, this, &AudioWindow::nextPressed);
     connect(buttonStop, &QPushButton::clicked, this, &AudioWindow::stopPressed);
@@ -100,6 +105,24 @@ void AudioWindow::setupUi()
     connect(tableMusic, SIGNAL(cellPressed(int,int)),this, SLOT(tableClicked(int,int)));
     connect(listPlaylist,&QListWidget::currentRowChanged,this,&AudioWindow::updateCurrentPlaylist);
     connect(tableMusic,&QTableWidget::cellDoubleClicked,this,&AudioWindow::songDoubleClick);
+}
+
+void AudioWindow::initUi()
+{
+    //Init the initial value for some variables and buttons
+    isPlaying = false;
+    playingSong = -1;
+
+    if(tableMusic->rowCount() == 0)
+    {
+        buttonPlay->setEnabled(false);
+        selectedSong = -1;
+    }
+    else
+    {
+        selectedSong = 0;
+        tableMusic->selectRow(selectedSong);
+    }
 }
 
 void AudioWindow::loadPlaylistAvaible()
@@ -161,6 +184,7 @@ void AudioWindow::listContentPlaylist(int playlistNumber)
         return;
     }
 
+    //Read playlist file
     QTextStream textStream(&file);
     while(!textStream.atEnd())
     {
@@ -169,15 +193,18 @@ void AudioWindow::listContentPlaylist(int playlistNumber)
         getAndShowInfoMusic(line);
         qDebug() << "Line : " << line;
     }
+
+    //Initialize UI after loading a new playlist
+    initUi();
 }
 
 void AudioWindow::getAndShowInfoMusic(QString path)
 {
     int numberOflines = tableMusic->rowCount()+1;
-    qDebug() << numberOflines;
     tableMusic->setRowCount(numberOflines);
 
-    //Get metadata from the song
+    //Get metadata from the song and put them in the table
+    //"Artist" "Title" "Album" "Year" "genre" "Lenght" "Bitrate" "Sample Rate" "Path"
     SongInfo* song = new SongInfo(path);
 
     QTableWidgetItem* artistItem = new QTableWidgetItem(song->getArtist());
@@ -196,15 +223,26 @@ void AudioWindow::getAndShowInfoMusic(QString path)
     yearItem->setFlags(yearItem->flags() ^ Qt::ItemIsEditable);
     tableMusic->setItem(numberOflines-1, 3, yearItem);
 
+    QTableWidgetItem* genreItem = new QTableWidgetItem(song->getGenre());
+    genreItem->setFlags(genreItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 4, genreItem);
+
     QTableWidgetItem* lenghtItem = new QTableWidgetItem(song->getLength());
     lenghtItem->setFlags(lenghtItem->flags() ^ Qt::ItemIsEditable);
-    tableMusic->setItem(numberOflines-1, 4, lenghtItem);
+    tableMusic->setItem(numberOflines-1, 5, lenghtItem);
 
-    QTableWidgetItem* pathItem = new QTableWidgetItem(path);
+    QTableWidgetItem* bitrateItem = new QTableWidgetItem(song->getBitrate());
+    bitrateItem->setFlags(bitrateItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 6, bitrateItem);
+
+    QTableWidgetItem* sampleRateItem = new QTableWidgetItem(song->getSampleRate());
+    sampleRateItem->setFlags(sampleRateItem->flags() ^ Qt::ItemIsEditable);
+    tableMusic->setItem(numberOflines-1, 7, sampleRateItem);
+
+    QTableWidgetItem* pathItem = new QTableWidgetItem(song->getPath());
     pathItem->setFlags(pathItem->flags() ^ Qt::ItemIsEditable);
-    tableMusic->setItem(numberOflines-1, 5, pathItem);
+    tableMusic->setItem(numberOflines-1, 8, pathItem);
 }
-
 
 void AudioWindow::addSongPressed()
 {
@@ -216,6 +254,7 @@ void AudioWindow::addSongPressed()
     }
     else
     {
+        //Open file chooser
         QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) + ".IceBroadcast/playlist/" + listPlaylist->item(currentPlaylist)->text() + ".txt";
         QFile file(path);
 
@@ -262,6 +301,7 @@ void AudioWindow::removeSongPressed()
             textStream << s;
             file.close();
 
+            //Update the table
             tableMusic->removeRow(selectedSong);
         }
     }
@@ -307,6 +347,7 @@ void AudioWindow::removePlaylistPressed()
 
     if(response == QMessageBox::Yes)
     {
+        //Delete the playlist file
         QString path = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(),QStandardPaths::LocateDirectory) + ".IceBroadcast/playlist/" + listPlaylist->item(currentPlaylist)->text() + ".txt";
         QFile file(path);
         file.remove();
@@ -316,53 +357,91 @@ void AudioWindow::removePlaylistPressed()
     }
 }
 
-void AudioWindow::playPausePressed()
+void AudioWindow::playPressed()
 {
-
+    if(isPlaying == false)
+    {
+        songDoubleClick(selectedSong, 0);
+    }
 }
-
 
 void AudioWindow::songDoubleClick(int y, int x)
 {
+    //Stream the audio
     StreamEngine &streamEngine = StreamEngine::getInstance();
     streamEngine.connexionToServer();
-    streamEngine.playMusic(tableMusic->item(y,5)->text());
-    playingSong = selectedSong;
-    emit playingSongChanged(tableMusic->itemAt(0, playingSong)->text() + tableMusic->itemAt(1, playingSong)->text());
+    streamEngine.playMusic(tableMusic->item(y,8)->text());
 
+    //Update UI
+    isPlaying = true;
+    playingSong = selectedSong = y;
+    buttonPlay->setEnabled(false);
+    buttonStop->setEnabled(true);
+
+    int duration = tableMusic->item(playingSong, 5)->text().toInt();
+    QDateTime dateTime = QDateTime::fromTime_t(duration);
+    timeTotal->display(dateTime.toString("mm:ss"));
+    time->display("00:00");
+    elapsedSeconds = 0;
+    timer->start();
+
+    slider->setMaximum(duration);
+    slider->setValue(elapsedSeconds);
+    emit playingSongChanged(tableMusic->item(playingSong, 0)->text() + " - " + tableMusic->item(playingSong, 1)->text());
 }
-
-
 
 void AudioWindow::stopPressed()
 {
-    isPlaying = false;
-    StreamEngine& streamEngine = StreamEngine::getInstance();
+    if(isPlaying == true)
+    {
+        //Update UI
+        isPlaying = false;
+        buttonStop->setEnabled(false);
+        buttonPlay->setEnabled(true);
+        timer->stop();
+        time->display("00:00");
+        elapsedSeconds = 0;
+        slider->setValue(elapsedSeconds);
+
+        //Stop streaming
+        StreamEngine &streamEngine = StreamEngine::getInstance();
+        streamEngine.connexionToServer();
+        streamEngine.stopMusic();
+    }
 }
 
 void AudioWindow::previousPressed()
 {
-    if(selectedSong > 0)
+    if(playingSong > 0)
     {
         stopPressed();
-        tableMusic->selectRow(selectedSong - 1);
-        playPausePressed();
+        selectedSong--;
+        tableMusic->selectRow(selectedSong);
+        playPressed();
     }
 }
 
 void AudioWindow::nextPressed()
-{
-    if(selectedSong < tableMusic->rowCount())
+{    
+    if(playingSong < tableMusic->rowCount()-1 && playingSong != -1)
     {
         stopPressed();
-        tableMusic->selectRow(selectedSong + 1);
-        playPausePressed();
+        selectedSong++;
+        tableMusic->selectRow(selectedSong);
+        playPressed();
+    }
+    else if(playingSong == tableMusic->rowCount()-1)
+    {
+        //Back to the top of the playlist
+        stopPressed();
+        selectedSong = 0;
+        tableMusic->selectRow(selectedSong);
+        playPressed();
     }
 }
 
 void AudioWindow::tableClicked(int y, int x)
 {
-    qDebug() << "Row : " << y << " Column : " << x << " Path: " << tableMusic->item(y,5)->text();
     selectedSong = y;
 }
 
@@ -381,5 +460,13 @@ void AudioWindow::updateCurrentPlaylist(int playlistNumber)
 
 void AudioWindow::updateTime()
 {
+    elapsedSeconds++;
+    QDateTime dateTime = QDateTime::fromTime_t(elapsedSeconds);
+    time->display(dateTime.toString("mm:ss"));
+    slider->setValue(elapsedSeconds);
 
+    if(slider->value() == slider->maximum())
+    {
+        nextPressed();
+    }
 }

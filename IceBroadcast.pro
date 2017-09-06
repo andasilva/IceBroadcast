@@ -72,10 +72,10 @@ RESOURCES += \
 INCLUDEPATH += /usr/local/include
 DEPENDPATH += /usr/local/include
 
-unix:!macx: LIBS += -L$$PWD/../../../../usr/lib/ -lshout
+unix:!macx: LIBS += -L$$PWD/usr/lib/ -lshout
 
 FORMS +=
 
 DISTFILES +=
 
-unix:!macx: LIBS += -lmp3lame
+unix:!macx: LIBS += -lmp3lame -ltag
