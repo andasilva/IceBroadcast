@@ -15,5 +15,6 @@
         <file>medias/images/icon_menu.png</file>
         <file>medias/qss/menu.qss</file>
         <file>medias/sound.mp3</file>
+        <file>medias/images/big_mic.png</file>
     </qresource>
 </RCC>

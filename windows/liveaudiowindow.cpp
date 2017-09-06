@@ -4,7 +4,6 @@
 
 const int BufferSize = 4096;
 
-
 LiveAudioWindow::LiveAudioWindow(QWidget *parent) : QWidget(parent)
 {
     setupUi();
@@ -12,49 +11,67 @@ LiveAudioWindow::LiveAudioWindow(QWidget *parent) : QWidget(parent)
     audioProbe = new QAudioProbe;
     audioProbe->setSource(audioRecorder);
 
+    timer = new QTimer(this);
+    timer->setInterval(1000);
+    elapsedSeconds = 0;
+
+    connect(timer, &QTimer::timeout, this, &LiveAudioWindow::updateTime);
     connect(audioRecorder, &QAudioRecorder::durationChanged,this,&LiveAudioWindow::updateProgess);
     connect(audioRecorder, &QAudioRecorder::stateChanged, this, &LiveAudioWindow::onStateChanged);
     connect(audioProbe,&QAudioProbe::audioBufferProbed,this,&LiveAudioWindow::processBuffer);
-
 }
 
 void LiveAudioWindow::setupUi()
 {
     //Instanciation
     time = new QLCDNumber(this);
-    time->setDigitCount(8);
-    time->display(QString("00:00:00"));
+    time->setDigitCount(5);
+    time->display(QString("00:00"));
+    time->setSegmentStyle(QLCDNumber::Flat);
+    time->setFrameStyle(QFrame::NoFrame);
+    time->setMinimumSize(300, 100);
 
     vuMeter = new VuMeter(this);
     sliderGain = new QSlider(Qt::Horizontal);
+    sliderGain->setMaximum(100);
+    sliderGain->setMinimum(0);
+    sliderGain->setValue(50);
+    sliderGain->setMinimumWidth(200);
+
     checkBoxRecord = new QCheckBox(tr("Save live session into a file"));
-    labelGain = new QLabel(tr("Gain"));
-    labelLevel = new QLabel(tr("Microphone level"));
+    labelGain = new QLabel(tr("Gain : "));
+    labelLevel = new QLabel(tr("Microphone level : "));
     labelStatus = new QLabel(tr("Not recording"));
-    buttonStartStop = new QPushButton(tr("Start Live Audio"));
+
+    labelMicLogo = new QLabel();
+    labelMicLogo->setPixmap(QPixmap(":/ressources/medias/images/big_mic.png"));
+
     buttonStart = new QPushButton(tr("Start"));
     buttonStop = new QPushButton(tr("Stop"));
+    buttonStop->setEnabled(false);
 
     //Sub Layouts
     QHBoxLayout* timeLayout = new QHBoxLayout;
-    timeLayout->addStretch(20);
+    timeLayout->addStretch();
     timeLayout->addWidget(time);
-    timeLayout->addStretch(20);
+    timeLayout->addStretch();
 
-    QHBoxLayout* labelLevelLayout = new QHBoxLayout;
-    labelLevelLayout->addWidget(labelLevel);
-    labelLevelLayout->addWidget(labelGain);
+    QHBoxLayout* logoLayout = new QHBoxLayout;
+    logoLayout->setAlignment(Qt::AlignCenter);
+    logoLayout->addWidget(labelMicLogo);
 
     QHBoxLayout* levelLayout = new QHBoxLayout;
+    levelLayout->addWidget(labelLevel);
     levelLayout->addWidget(vuMeter);
+    levelLayout->addStretch(20);
+    levelLayout->addWidget(labelGain);
     levelLayout->addWidget(sliderGain);
 
     QHBoxLayout* actionsLayout = new QHBoxLayout;
-    actionsLayout->addStretch(20);
-    actionsLayout->addWidget(buttonStartStop);
+    actionsLayout->addStretch();
     actionsLayout->addWidget(buttonStart);
     actionsLayout->addWidget(buttonStop);
-    actionsLayout->addStretch(20);
+    actionsLayout->addStretch();
 
     QHBoxLayout* optionsLayout = new QHBoxLayout;
     optionsLayout->addWidget(checkBoxRecord);
@@ -63,11 +80,11 @@ void LiveAudioWindow::setupUi()
 
     //Main Layout
     QVBoxLayout* mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(timeLayout);
-    mainLayout->addStretch(20);
-    mainLayout->addLayout(labelLevelLayout);
     mainLayout->addLayout(levelLayout);
     mainLayout->addStretch(20);
+    mainLayout->addLayout(timeLayout);
+    mainLayout->addStrut(20);
+    mainLayout->addLayout(logoLayout);
     mainLayout->addLayout(actionsLayout);
     mainLayout->addStretch(20);
     mainLayout->addLayout(optionsLayout);
@@ -76,24 +93,60 @@ void LiveAudioWindow::setupUi()
 
     //Connections
     //connect(buttonStartStop,&QPushButton::clicked,this,&LiveAudioWindow::playTest);
-    connect(buttonStart, &QPushButton::clicked,this,&LiveAudioWindow::playLive);
+    connect(buttonStart, &QPushButton::clicked, this, &LiveAudioWindow::playLive);
+    connect(buttonStop, &QPushButton::clicked, this, &LiveAudioWindow::stopLive);
 }
 
 
 void LiveAudioWindow::playLive()
 {
-    QAudioEncoderSettings audioSettings;
-    audioSettings.setCodec("audio/mpeg, mpegversion=(int)1, layer=(int)3");
-    audioSettings.setSampleRate(0);
-    audioSettings.setBitRate(0);
-    audioSettings.setChannelCount(1);
+    if(checkBoxRecord->isChecked())
+    {
+        QAudioEncoderSettings audioSettings;
+        audioSettings.setCodec("audio/mpeg, mpegversion=(int)1, layer=(int)3");
+        audioSettings.setSampleRate(0);
+        audioSettings.setBitRate(0);
+        audioSettings.setChannelCount(1);
 
+        audioRecorder->setEncodingSettings(audioSettings, QVideoEncoderSettings(),"audio/mpeg, mpegversion=(int)1");
+        audioRecorder->setOutputLocation(QUrl(QStandardPaths::locate(QStandardPaths::MusicLocation, QString(),QStandardPaths::LocateDirectory) + "Record_" + QDateTime::currentDateTime().toString() + ".mp3"));
+        audioRecorder->record();
+    }
 
-    audioRecorder->setEncodingSettings(audioSettings,QVideoEncoderSettings(),"audio/mpeg, mpegversion=(int)1");
-    audioRecorder->setOutputLocation(QUrl("/home/angelkiro/Musique/test.mp3"));
-    StreamEngine& streamEngine = StreamEngine::getInstance();
-    streamEngine.connexionToServer();
-    audioRecorder->record();
+    //    StreamEngine& streamEngine = StreamEngine::getInstance();
+    //    streamEngine.connexionToServer();
+
+    //Update UI
+    buttonStart->setEnabled(false);
+    buttonStop->setEnabled(true);
+    checkBoxRecord->setEnabled(false);
+    labelStatus->setText(tr("Recoding"));
+    timer->start();
+}
+
+void LiveAudioWindow::stopLive()
+{
+    //Update UI
+    buttonStart->setEnabled(true);
+    buttonStop->setEnabled(false);
+    checkBoxRecord->setEnabled(true);
+    labelStatus->setText(tr("Not Recording"));
+    timer->stop();
+    elapsedSeconds = 0;
+    time->display("00:00");
+
+    if(checkBoxRecord->isChecked())
+    {
+        audioRecorder->stop();
+        QMessageBox::information(this, tr("Recording"), tr("The session has been record in %1").arg(QStandardPaths::locate(QStandardPaths::MusicLocation, QString(),QStandardPaths::LocateDirectory)), QMessageBox::Ok);
+    }
+}
+
+void LiveAudioWindow::updateTime()
+{
+    elapsedSeconds++;
+    QDateTime dateTime = QDateTime::fromTime_t(elapsedSeconds);
+    time->display(dateTime.toString("mm:ss"));
 }
 
 void LiveAudioWindow::processBuffer(const QAudioBuffer& buffer)
@@ -103,7 +156,6 @@ void LiveAudioWindow::processBuffer(const QAudioBuffer& buffer)
     qDebug() << info.supportedCodecs();*/
 
     const short int* data = buffer.data<short int>();
-
 
     int pcm_size = buffer.byteCount();
 
@@ -115,28 +167,17 @@ void LiveAudioWindow::processBuffer(const QAudioBuffer& buffer)
         qDebug() << data[i];
     }
 
-
     lame_t lame = lame_init();
     lame_set_in_samplerate(lame,44100);
     lame_set_VBR(lame,vbr_default);
     lame_init_params(lame);
 
-
-
     lame_encode_buffer_interleaved(lame,pcm_buffer,pcm_size, mp3Buffer,pcm_size);
     lame_encode_flush(lame,mp3Buffer,pcm_size);
     lame_close(lame);
 
-
-
     StreamEngine& streamEngine = StreamEngine::getInstance();
     streamEngine.sendDataToPlay(mp3Buffer,pcm_size);
-
-}
-
-
-void LiveAudioWindow::pauseLive()
-{
 
 }
 

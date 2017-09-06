@@ -3,7 +3,7 @@
 VuMeter::VuMeter(QWidget *parent) : QWidget(parent)
 {
     setBackgroundRole(QPalette::Base);
-    setAutoFillBackground(true);
+    setAutoFillBackground(false);
 
     m_level = 0;
     setMinimumHeight(30);
