@@ -13,31 +13,33 @@ public:
     explicit LiveAudioWindow(QWidget *parent = 0);
 
 private:
-    QPushButton* buttonStartStop, *buttonStart, *buttonStop;
+    QPushButton *buttonStart, *buttonStop;
     QLCDNumber* time;
     QSlider* sliderGain;
     QLabel* labelStatus;
     QCheckBox* checkBoxRecord;
+    QLabel* labelMicLogo;
     QLabel* labelLevel;
     QLabel* labelGain;
     VuMeter* vuMeter;
 
-    void setupUi();
-
+    QTimer* timer;
     QAudioRecorder *audioRecorder;
     QAudioProbe *audioProbe;
+    int elapsedSeconds;
 
+    void setupUi();
 
 signals:
-
 
 public slots:
     void processBuffer(const QAudioBuffer& buffer);
 
 private slots:
     void playLive();
-    void pauseLive();
+    void stopLive();
 
+    void updateTime();
     void updateStatus(QMediaRecorder::Status status);
     void onStateChanged(QMediaRecorder::State state);
     void updateProgess(qint64 pos);
