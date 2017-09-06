@@ -3,7 +3,6 @@
 
 StatChart::StatChart(QWidget *parent) : QWidget(parent)
 {
-    qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
     QHBoxLayout* mainLayout = new QHBoxLayout;
 
     series = new QLineSeries;
@@ -12,34 +11,10 @@ StatChart::StatChart(QWidget *parent) : QWidget(parent)
     axisY = new QValueAxis;
     chartView = new QChartView;
 
-
-    int day = 15;
-    int month = 1;
-    int year = 2012;
-
-
-    /*Get info from server*/
-    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName("192.168.1.42");
-    db.setPort(3306);
-    db.setDatabaseName("icebroadcast");
-    db.setUserName("root");
-    db.setPassword("pa$$w0rd"); // Don't worry, it's only a password for local test :-)
-    if(db.open())
-       qDebug() << "Connexion to database... Ok" ;
-    else
-       qDebug() << "Connexion to database... Error: " << db.lastError();
-
-
-
-    for(int i = 0; i < 7; i++){
-        QDateTime time;
-        qDebug() << "2017090515"+QString::number(day);
-        time.setDate(QDate::fromString("20170905", "yyyyMMdd"));
-        time.setTime(QTime::fromString("14"+QString::number(day),"hhmm"));
-        series->append(time.toMSecsSinceEpoch(),day);
-        qDebug() << time.toMSecsSinceEpoch();
-        day++;
+    connectToDatabase();
+    QSqlDatabase db =  QSqlDatabase::database();
+    if(db.isOpen()){
+        getStats();
     }
 
     chart->addSeries(series);
@@ -67,4 +42,78 @@ StatChart::StatChart(QWidget *parent) : QWidget(parent)
     mainLayout->addWidget(chartView);
 
     setLayout(mainLayout);
+
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateDatabase()));
+    timer->start(300000); // Update statistics each 5min
+}
+
+void StatChart::getStats()
+{
+
+    series->clear();
+    QSqlQuery query ;
+    if(query.exec("SELECT * FROM statistics ORDER BY date DESC LIMIT 7")){
+        while(query.next()){
+            QString date = query.value(0).toString() ;
+            int number = query.value(1).toInt();
+
+            QDateTime time;
+            time.setDate(QDate::fromString(date.remove("-").left(8), "yyyyMMdd"));
+            time.setTime(QTime::fromString(date.remove(":").right(6).left(4),"hhmm"));
+            series->append(time.toMSecsSinceEpoch(),number);
+        }
+        chart->removeSeries(series);
+        chart->addSeries(series);
+        chart->removeAxis(axisX);
+        chart->removeAxis(axisY);
+        axisX = new QDateTimeAxis;
+        axisY = new QValueAxis;
+
+        //Put axis X
+        axisX->setTickCount(7);
+        axisX->setFormat("hh:mm");
+        axisX->setTitleText("Date");
+        chart->addAxis(axisX,Qt::AlignBottom);
+        series->attachAxis(axisX);
+
+        //Put axis Y
+        axisY->setLabelFormat("%i");
+        axisY->setTitleText("Listeners count");
+        chart->addAxis(axisY, Qt::AlignLeft);
+        series->attachAxis(axisY);
+    } else
+        qDebug() << "La requête a échoué" ;
+}
+
+void StatChart::connectToDatabase()
+{
+    QSqlDatabase db =  QSqlDatabase::database();
+    if(!db.isOpen()){
+        QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+        db.setHostName("192.168.1.42");
+        db.setPort(3306);
+        db.setDatabaseName("icebroadcast");
+        db.setUserName("root");
+        db.setPassword("pa$$w0rd"); // Don't worry, it's only a password for local test :-)
+        if(db.open()){
+            qDebug() << "Connexion to database... Ok" ;
+        }else
+            qDebug() << "Connexion to database... Error: " << db.lastError();
+    }
+}
+
+void StatChart::updateDatabase()
+{
+    qDebug() << "Update stats";
+    connectToDatabase();
+    QSqlDatabase db =  QSqlDatabase::database();
+    if(db.isOpen()){
+        getStats();
+    }else{
+        qDebug() << "Database not open";
+    }
+    qDebug() << "End of update";
+
+
 }
