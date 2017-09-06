@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network multimediawidgets multimedia
+QT       += core gui network multimediawidgets multimedia charts sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -41,7 +41,8 @@ SOURCES += \
     audio/audioinfo.cpp \
     stream/workerstream.cpp \
     audio/vumeter.cpp \
-    audio/songinfo.cpp
+    audio/songinfo.cpp \
+    stream/statchart.cpp
     
 HEADERS += \
         IceBroadcast.h \
@@ -62,7 +63,8 @@ HEADERS += \
     audio/audioinfo.h \
     stream/workerstream.h \
     audio/vumeter.h \
-    audio/songinfo.h
+    audio/songinfo.h \
+    stream/statchart.h
     
 RESOURCES += \
     ressources.qrc

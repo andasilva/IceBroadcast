@@ -37,6 +37,8 @@ void WorkerStream::start()
         shout_sync(connexion);
     }
     qDebug() << "End of the song...";
+    streamEngine.setIsRunning(false);
+    streamEngine.getThread()->exit();
     shout_close(connexion);
 }
 

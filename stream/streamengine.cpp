@@ -20,6 +20,21 @@ StreamEngine::StreamEngine(QObject *parent)
     connect(timerCheckConnexion,&QTimer::timeout,this,&StreamEngine::checkConnexion);
 }
 
+void StreamEngine::setIsRunning(bool value)
+{
+    isRunning = value;
+}
+
+QThread *StreamEngine::getThread() const
+{
+    return thread;
+}
+
+void StreamEngine::setThread(QThread *value)
+{
+    thread = value;
+}
+
 QString *StreamEngine::getCurrentlyPlaying() const
 {
     return currentlyPlaying;
@@ -48,6 +63,7 @@ void StreamEngine::sendDataToPlay(const unsigned char *data, size_t length)
 void StreamEngine::connexionToServer()
 {
     if(!isRunning){
+        connexion = shout_new();
         qDebug() << "Trying to connect to server...";
         QSettings settings;
 
@@ -97,14 +113,16 @@ void StreamEngine::playMusic(QString music)
     qDebug() << "Play music: " << music ;
     currentlyPlaying = new QString(music);
 
-
+    qDebug() << "Thread state:" << thread->isFinished() << thread->isRunning();
     if(!thread->isRunning()){
+        qDebug() << "New thread created";
         thread = new QThread;
         worker = new WorkerStream;
         worker->moveToThread(thread);
         QMetaObject::invokeMethod(worker,"start");
         thread->start();
     }else{
+        qDebug() << "Play anoter song....";
         worker->playAnotherSong(music);
     }
 }

@@ -1,6 +1,7 @@
 #include "dashboardwindow.h"
 #include <QtWidgets>
 #include "stream/streamengine.h"
+#include "livetvwindow.h"
 
 DashboardWindow::DashboardWindow(QWidget *parent) : QWidget(parent)
 {
@@ -11,6 +12,8 @@ void DashboardWindow::setupUi()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
     QHBoxLayout *layoutLogo = new QHBoxLayout;
+
+    statChart = new StatChart(this);
 
     //load Logo
     logo = new QLabel(this);
@@ -38,6 +41,8 @@ void DashboardWindow::setupUi()
     mainLayout->addSpacing(30);
     mainLayout->addLayout(layoutInfo);
     mainLayout->addStretch();
+    mainLayout->addWidget(new QLabel("<u><b>Statistics</b></u>"));
+    mainLayout->addWidget(statChart);
     setLayout(mainLayout);
     connect(&(StreamEngine::getInstance()),&StreamEngine::connexionEstablished,this,&DashboardWindow::updateServerStatus);
 }

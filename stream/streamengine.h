@@ -23,6 +23,11 @@ public:
 
     QString *getCurrentlyPlaying() const;
 
+    void setIsRunning(bool value);
+
+    QThread *getThread() const;
+    void setThread(QThread *value);
+
 private:
     QThread *thread;
     StreamEngine(QObject *parent=0);

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QtWidgets>
+#include "stream/statchart.h"
 
 class DashboardWindow : public QWidget
 {
@@ -12,6 +13,7 @@ public:
 
 private:
     QLabel *logo, *labelMusicBeingPlayed, *labelServerStatus;
+    StatChart* statChart;
     void setupUi();
 
 signals:
