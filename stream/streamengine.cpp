@@ -62,10 +62,10 @@ void StreamEngine::sendDataToPlay(const unsigned char *data, size_t length)
 
 void StreamEngine::stopMusic()
 {
-
+    worker->setAborted(true);
 }
 
-void StreamEngine::connexionToServer()
+bool StreamEngine::connexionToServer()
 {
     if(!isRunning){
         connexion = shout_new();
@@ -88,6 +88,7 @@ void StreamEngine::connexionToServer()
         isRunning = true;
         //timerCheckConnexion->start(1500); //TODO: get 15000 from server file?
         emit connexionEstablished(true);
+        return true;
         break;
     case SHOUTERR_NOLOGIN:
         qDebug() << "login error" ;
@@ -96,6 +97,7 @@ void StreamEngine::connexionToServer()
         qDebug() << "Error connexion:" << resultConnexion;
         break;
     }
+    return false;
 
 }
 

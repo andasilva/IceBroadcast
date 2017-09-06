@@ -3,7 +3,12 @@
 
 WorkerStream::WorkerStream(QObject *parent) : QObject(parent)
 {
+    aborted = false;
+}
 
+void WorkerStream::setAborted(bool value)
+{
+    aborted = value;
 }
 
 void WorkerStream::start()
@@ -22,7 +27,7 @@ void WorkerStream::start()
 
     long read, ret;
 
-    while (true) {
+    while (!aborted) {
         read = fread(buff, 1, sizeof(buff), pFile);
         qDebug() << read;
         if (read > 0) {

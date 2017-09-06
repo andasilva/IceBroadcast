@@ -21,11 +21,8 @@ public:
     void stopMusic();
 
     shout_t *getConnexion() const;
-
     QString *getCurrentlyPlaying() const;
-
     void setIsRunning(bool value);
-
     QThread *getThread() const;
     void setThread(QThread *value);
 
@@ -40,7 +37,7 @@ private:
     QString *currentlyPlaying;
 
 public slots:
-    void connexionToServer();
+    bool connexionToServer();
     void checkConnexion();
     void playMusic(QString music);
 
