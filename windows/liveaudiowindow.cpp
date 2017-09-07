@@ -4,7 +4,7 @@
 
 const int BufferSize = 4096;
 
-LiveAudioWindow::LiveAudioWindow(QWidget *parent) : QWidget(parent)
+LiveAudioWindow::LiveAudioWindow(QWidget *parent) : QWidget(parent), device(QAudioDeviceInfo::defaultInputDevice()), audioInfo(0), audioInput(0)
 {
     setupUi();
     audioRecorder = new QAudioRecorder(this);
@@ -92,24 +92,53 @@ void LiveAudioWindow::setupUi()
     this->setLayout(mainLayout);
 
     //Connections
-    //connect(buttonStartStop,&QPushButton::clicked,this,&LiveAudioWindow::playTest);
     connect(buttonStart, &QPushButton::clicked, this, &LiveAudioWindow::playLive);
     connect(buttonStop, &QPushButton::clicked, this, &LiveAudioWindow::stopLive);
 }
 
-
-void LiveAudioWindow::playLive()
+void LiveAudioWindow::initializeVuMeter()
 {
     format.setSampleRate(8000);
     format.setChannelCount(1);
     format.setSampleSize(16);
     format.setSampleType(QAudioFormat::SignedInt);
     format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setCodec("audio/pcm");
+    format.setCodec("audio/mp3");
 
-    audioInfo = new AudioInfo(format, this);
+    QAudioDeviceInfo info(device);
+    if (!info.isFormatSupported(format))
+    {
+        qWarning() << "Default format not supported - trying to use nearest";
+        format = info.nearestFormat(format);
+    }
+
+    if (audioInfo)
+    {
+        delete audioInfo;
+    }
+
+    audioInfo  = new AudioInfo(format, this);
     connect(audioInfo, SIGNAL(update()), SLOT(refreshDisplay()));
 
+    createVuMeter();
+}
+
+void LiveAudioWindow::createVuMeter()
+{
+    audioInput = new QAudioInput(device, format, this);
+    audioInfo->start();
+    audioInput->start(audioInfo);
+}
+
+void LiveAudioWindow::stopVuMeter()
+{
+    audioInfo->stop();
+    audioInput->stop();
+    vuMeter->setLevel(0);
+}
+
+void LiveAudioWindow::playLive()
+{
     if(checkBoxRecord->isChecked())
     {
         QAudioEncoderSettings audioSettings;
@@ -124,6 +153,8 @@ void LiveAudioWindow::playLive()
 
         labelStatus->setText(tr("Recoding"));
     }
+
+    initializeVuMeter();
 
     //    StreamEngine& streamEngine = StreamEngine::getInstance();
     //    streamEngine.connexionToServer();
@@ -146,6 +177,8 @@ void LiveAudioWindow::stopLive()
     elapsedSeconds = 0;
     time->display("00:00");
 
+    stopVuMeter();
+
     if(checkBoxRecord->isChecked())
     {
         audioRecorder->stop();
@@ -162,10 +195,6 @@ void LiveAudioWindow::updateTime()
 
 void LiveAudioWindow::processBuffer(const QAudioBuffer& buffer)
 {
-    /*qDebug() << buffer.format().codec();
-    QAudioDeviceInfo info(QAudioDeviceInfo::defaultInputDevice());
-    qDebug() << info.supportedCodecs();*/
-
     const short int* data = buffer.data<short int>();
 
     int pcm_size = buffer.byteCount();

@@ -23,7 +23,7 @@ void VuMeter::paintEvent(QPaintEvent* event)
     }
 
     int pos = ((painter.viewport().right()-20)-(painter.viewport().left()+11))*m_level;
-    painter.fillRect(painter.viewport().left()+11, painter.viewport().top()+10, pos, painter.viewport().height()-21, Qt::green);
+    painter.fillRect(painter.viewport().left()+11, painter.viewport().top()+10, pos, painter.viewport().height()-21, Qt::cyan);
 }
 
 void VuMeter::setLevel(qreal value)

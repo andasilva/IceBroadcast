@@ -21,18 +21,22 @@ private:
     QLabel* labelMicLogo;
     QLabel* labelLevel;
     QLabel* labelGain;
-    VuMeter* vuMeter;
 
     QTimer* timer;
     QAudioRecorder *audioRecorder;
     QAudioProbe *audioProbe;
     int elapsedSeconds;
 
+    VuMeter* vuMeter;
     QAudioDeviceInfo device;
     AudioInfo *audioInfo;
+    QAudioInput *audioInput;
     QAudioFormat format;
 
     void setupUi();
+    void initializeVuMeter();
+    void createVuMeter();
+    void stopVuMeter();
 
 signals:
 

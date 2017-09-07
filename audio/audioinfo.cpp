@@ -73,15 +73,12 @@ qint64 AudioInfo::readData(char *data, qint64 maxlen)
 {
     Q_UNUSED(data)
     Q_UNUSED(maxlen)
-    qDebug() << "Unused : " << data;
 
     return 0;
 }
 
 qint64 AudioInfo::writeData(const char *data, qint64 len)
 {
-    qDebug() << "WRITE DATA : " << data;
-
     if (m_maxAmplitude)
     {
         Q_ASSERT(m_format.sampleSize() % 8 == 0);
@@ -148,6 +145,7 @@ qint64 AudioInfo::writeData(const char *data, qint64 len)
         maxValue = qMin(maxValue, m_maxAmplitude);
         m_level = qreal(maxValue) / m_maxAmplitude;
     }
+
 
     emit update();
     return len;
