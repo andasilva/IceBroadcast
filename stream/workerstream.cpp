@@ -36,8 +36,6 @@ void WorkerStream::start()
                 printf("DEBUG: Send error: %s\n", shout_get_error(connexion));
                 break;
             }
-        } else {
-            break;
         }
         shout_sync(connexion);
     }

@@ -412,32 +412,37 @@ void AudioWindow::stopPressed()
 
 void AudioWindow::previousPressed()
 {
+    StreamEngine &streamEngine = StreamEngine::getInstance();
+    streamEngine.connexionToServer();
     if(playingSong > 0)
     {
-        stopPressed();
         selectedSong--;
-        tableMusic->selectRow(selectedSong);
-        playPressed();
+    }else{
+        selectedSong = tableMusic->rowCount()-1;
     }
+    tableMusic->selectRow(selectedSong);
+    isPlaying = false;
+    playPressed();
+    streamEngine.playMusic(tableMusic->item(selectedSong,8)->text());
 }
 
 void AudioWindow::nextPressed()
 {    
+    StreamEngine &streamEngine = StreamEngine::getInstance();
+    streamEngine.connexionToServer();
     if(playingSong < tableMusic->rowCount()-1 && playingSong != -1)
     {
-        stopPressed();
         selectedSong++;
-        tableMusic->selectRow(selectedSong);
-        playPressed();
     }
     else if(playingSong == tableMusic->rowCount()-1)
     {
         //Back to the top of the playlist
-        stopPressed();
         selectedSong = 0;
-        tableMusic->selectRow(selectedSong);
-        playPressed();
     }
+    tableMusic->selectRow(selectedSong);
+    isPlaying = false;
+    playPressed();
+    streamEngine.playMusic(tableMusic->item(selectedSong,8)->text());
 }
 
 void AudioWindow::tableClicked(int y, int x)

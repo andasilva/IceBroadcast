@@ -1,5 +1,8 @@
 #include "statchart.h"
 #include <QtSql>
+#include <QThread>
+#include <QtConcurrent>
+
 
 StatChart::StatChart(QWidget *parent) : QWidget(parent)
 {
@@ -11,7 +14,8 @@ StatChart::StatChart(QWidget *parent) : QWidget(parent)
     axisY = new QValueAxis;
     chartView = new QChartView;
 
-    connectToDatabase();
+    //connectToDatabase();
+    QFuture<void> future = QtConcurrent::run(connectToDatabase);
     QSqlDatabase db =  QSqlDatabase::database();
     if(db.isOpen()){
         getStats();
@@ -50,7 +54,6 @@ StatChart::StatChart(QWidget *parent) : QWidget(parent)
 
 void StatChart::getStats()
 {
-
     series->clear();
     QSqlQuery query ;
     if(query.exec("SELECT * FROM statistics ORDER BY date DESC LIMIT 7")){
@@ -83,10 +86,10 @@ void StatChart::getStats()
         chart->addAxis(axisY, Qt::AlignLeft);
         series->attachAxis(axisY);
     } else
-        qDebug() << "La requête a échoué" ;
+        qDebug() << "La requête a échoué";
 }
 
-void StatChart::connectToDatabase()
+bool StatChart::connectToDatabase()
 {
     QSqlDatabase db =  QSqlDatabase::database();
     if(!db.isOpen()){
@@ -98,22 +101,23 @@ void StatChart::connectToDatabase()
         db.setPassword("pa$$w0rd"); // Don't worry, it's only a password for local test :-)
         if(db.open()){
             qDebug() << "Connexion to database... Ok" ;
-        }else
+            return true;
+        }else{
             qDebug() << "Connexion to database... Error: " << db.lastError();
+            return false;
+        }
     }
 }
 
 void StatChart::updateDatabase()
 {
     qDebug() << "Update stats";
-    connectToDatabase();
     QSqlDatabase db =  QSqlDatabase::database();
     if(db.isOpen()){
         getStats();
     }else{
         qDebug() << "Database not open";
+        QFuture<void> future = QtConcurrent::run(connectToDatabase);
     }
     qDebug() << "End of update";
-
-
 }

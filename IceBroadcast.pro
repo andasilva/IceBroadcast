@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network multimediawidgets multimedia charts sql
+QT       += core gui network multimediawidgets multimedia charts sql concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

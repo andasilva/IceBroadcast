@@ -120,7 +120,6 @@ void StreamEngine::playMusic(QString music)
     qDebug() << "Play music: " << music ;
     currentlyPlaying = new QString(music);
 
-    qDebug() << "Thread state:" << thread->isFinished() << thread->isRunning();
     if(!thread->isRunning()){
         qDebug() << "New thread created";
         thread = new QThread;

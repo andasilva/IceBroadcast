@@ -11,7 +11,7 @@ class StatChart : public QWidget
 public:
     explicit StatChart(QWidget *parent = nullptr);
     void getStats();
-    void connectToDatabase();
+    bool static connectToDatabase();
 private:
     QLineSeries* series;
     QChart* chart;
