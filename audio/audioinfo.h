@@ -4,6 +4,7 @@
 #include <QIODevice>
 #include <QtMultimedia>
 #include <QAudioOutput>
+#include "stream/streamengine.h"
 
 class AudioInfo : public QIODevice
 {

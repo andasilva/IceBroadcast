@@ -79,6 +79,10 @@ qint64 AudioInfo::readData(char *data, qint64 maxlen)
 
 qint64 AudioInfo::writeData(const char *data, qint64 len)
 {
+//    StreamEngine& streamEngine = StreamEngine::getInstance();
+//    streamEngine.connexionToServer();
+//    streamEngine.sendDataToPlay((const unsigned char *) data, len);
+
     if (m_maxAmplitude)
     {
         Q_ASSERT(m_format.sampleSize() % 8 == 0);

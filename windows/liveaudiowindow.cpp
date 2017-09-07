@@ -103,7 +103,7 @@ void LiveAudioWindow::initializeVuMeter()
     format.setSampleSize(16);
     format.setSampleType(QAudioFormat::SignedInt);
     format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setCodec("audio/mp3");
+    format.setCodec("audio/wav");
 
     QAudioDeviceInfo info(device);
     if (!info.isFormatSupported(format))
