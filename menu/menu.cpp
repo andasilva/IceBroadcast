@@ -1,8 +1,7 @@
 #include "menu.h"
 #include "./../config.h"
 
-Menu::Menu(QWidget *parent)
-    : QWidget(parent)
+Menu::Menu(QWidget *parent) : QWidget(parent)
 {
     // Load StyleSheet
     QFile file(":/ressources/medias/qss/menu.qss");
@@ -42,7 +41,6 @@ Menu::Menu(QWidget *parent)
     connect(buttonLiveAudio,&ButtonMenu::buttonClicked, this,&Menu::updateButtonCurrentlySelected);
     connect(buttonLiveTV,&ButtonMenu::buttonClicked, this,&Menu::updateButtonCurrentlySelected);
     connect(buttonSettings,&ButtonMenu::buttonClicked, this,&Menu::updateButtonCurrentlySelected);
-
 
     //First button activate
     buttonCurrentlySelected = buttonDashBoard;

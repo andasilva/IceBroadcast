@@ -60,7 +60,6 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
 
     layoutServer->addLayout(gridLayout);
 
-
     /*****************/
     /* Audio Section */
     /*****************/

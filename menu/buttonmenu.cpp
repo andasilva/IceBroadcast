@@ -10,7 +10,6 @@ ButtonMenu::ButtonMenu(QWidget *parent) : QPushButton(parent)
     connect(this,&ButtonMenu::clicked, this,&ButtonMenu::highlightIcon);
 }
 
-
 ButtonMenu::ButtonMenu(QString iconPath, QString iconSelectedPath, QWidget *parent) : QPushButton(parent)
 {
     this->icon = new QIcon(iconPath);
@@ -22,8 +21,6 @@ ButtonMenu::ButtonMenu(QString iconPath, QString iconSelectedPath, QWidget *pare
     connect(this,&ButtonMenu::clicked, this,&ButtonMenu::highlightIcon);
 }
 
-
-
 void ButtonMenu::unhighlightIcon()
 {
     setIcon(*icon);
@@ -34,7 +31,6 @@ void ButtonMenu::highlightIcon()
     setIcon(*iconHighlighted);
     emit buttonClicked(this);
 }
-
 
 int ButtonMenu::getIdButton() const
 {

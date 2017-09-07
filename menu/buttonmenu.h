@@ -7,7 +7,7 @@
 class ButtonMenu: public QPushButton
 {
 
-Q_OBJECT
+    Q_OBJECT
 
 public:
     ButtonMenu(QWidget* parent=0);
