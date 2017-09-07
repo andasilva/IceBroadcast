@@ -3,8 +3,7 @@
 #include "workerstream.h"
 #include <QSettings>
 
-StreamEngine::StreamEngine(QObject *parent)
-    :QObject(parent)
+StreamEngine::StreamEngine(QObject *parent) :QObject(parent)
 {
     currentlyPlaying = new QString("");
 
@@ -90,6 +89,9 @@ bool StreamEngine::connexionToServer()
         emit connexionEstablished(true);
         return true;
         break;
+    case SHOUTERR_CONNECTED:
+        return true;
+        break;
     case SHOUTERR_NOLOGIN:
         qDebug() << "login error" ;
         break;
@@ -98,10 +100,7 @@ bool StreamEngine::connexionToServer()
         break;
     }
     return false;
-
 }
-
-
 
 void StreamEngine::checkConnexion()
 {
@@ -113,7 +112,6 @@ void StreamEngine::checkConnexion()
         emit connexionEstablished(false);
     }
 }
-
 
 void StreamEngine::playMusic(QString music)
 {
@@ -132,7 +130,3 @@ void StreamEngine::playMusic(QString music)
         worker->playAnotherSong(music);
     }
 }
-
-
-
-

@@ -28,12 +28,17 @@ private:
     QAudioProbe *audioProbe;
     int elapsedSeconds;
 
+    QAudioDeviceInfo device;
+    AudioInfo *audioInfo;
+    QAudioFormat format;
+
     void setupUi();
 
 signals:
 
 public slots:
     void processBuffer(const QAudioBuffer& buffer);
+    void refreshDisplay();
 
 private slots:
     void playLive();

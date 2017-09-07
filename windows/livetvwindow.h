@@ -20,6 +20,8 @@ private:
     QPushButton *buttonStart, *buttonStop, *buttonPreview;
     QCheckBox* checkBoxRecord;
 
+    void setupUi();
+    
 signals:
 
 public slots:

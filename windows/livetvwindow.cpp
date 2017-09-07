@@ -4,41 +4,54 @@
 LiveTvWindow::LiveTvWindow(QWidget *parent) : QWidget(parent)
 {
     isCameraPreview = false;
+    setupUi();
+    connect(buttonPreview,&QPushButton::clicked,this,&LiveTvWindow::enablePreview);
+}
+
+void LiveTvWindow::setupUi()
+{
     buttonStart = new QPushButton("Start Streaming");
-    buttonStop = new QPushButton("Stop streaming");
+    buttonStop = new QPushButton("Stop Streaming");
     buttonPreview = new QPushButton("Preview");
-    labelStatus = new QLabel("Status: Not streaming");
-    labelTime = new QLabel("Duration of stream:");
+    labelStatus = new QLabel("Not recording");
     checkBoxRecord = new QCheckBox(tr("Save live session into a file"));
+
     labelSpace = new QLabel("<b>Video preview</b>");
     labelSpace->setAlignment(Qt::AlignCenter);
     labelSpace->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     labelSpace->setStyleSheet("border: 1px solid; background-color: black; color:white");
+
     time = new QLCDNumber;
-    time->setDigitCount(8);
-    time->display(QString("00:00:00"));
+    time->setDigitCount(5);
+    time->display(QString("00:00"));
+    time->setSegmentStyle(QLCDNumber::Flat);
+    time->setFrameStyle(QFrame::NoFrame);
+    time->setMinimumSize(300, 100);
 
     videoWidget = new QVideoWidget;
 
-
     QHBoxLayout *buttonLayout = new QHBoxLayout;
+    buttonLayout->addStretch();
     buttonLayout->addWidget(buttonStart);
     buttonLayout->addWidget(buttonStop);
+    buttonLayout->addWidget(buttonPreview);
+    buttonLayout->addStretch();
 
     QHBoxLayout *streamLayout = new QHBoxLayout;
-    streamLayout->addWidget(labelTime);
+    streamLayout->addStretch();
     streamLayout->addWidget(time);
     streamLayout->addStretch();
 
-
     QVBoxLayout *previewLayout = new QVBoxLayout;
-    previewLayout->addWidget(buttonPreview);
     previewLayout->addWidget(videoWidget);
 
-    mainLayout = new QVBoxLayout;
+    QHBoxLayout *bottomLayout = new QHBoxLayout;
+    bottomLayout->addWidget(checkBoxRecord);
+    bottomLayout->addStretch(20);
+    bottomLayout->addWidget(labelStatus);
 
+    mainLayout = new QVBoxLayout;
     mainLayout->addSpacing(30);
-    mainLayout->addWidget(labelStatus);
     mainLayout->addLayout(streamLayout);
     mainLayout->addSpacing(50);
     mainLayout->addWidget(new QLabel("<b>Video</b>"));
@@ -47,11 +60,9 @@ LiveTvWindow::LiveTvWindow(QWidget *parent) : QWidget(parent)
     mainLayout->addSpacing(30);
     mainLayout->addLayout(buttonLayout);
     mainLayout->addSpacing(20);
-    mainLayout->addWidget(checkBoxRecord);
+    mainLayout->addLayout(bottomLayout);
 
     setLayout(mainLayout);
-
-    connect(buttonPreview,&QPushButton::clicked,this,&LiveTvWindow::enablePreview);
 }
 
 void LiveTvWindow::enablePreview()
@@ -74,5 +85,4 @@ void LiveTvWindow::enablePreview()
         labelSpace->show();
         videoWidget->hide();
     }
-
 }

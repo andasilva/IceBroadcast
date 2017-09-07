@@ -369,7 +369,11 @@ void AudioWindow::songDoubleClick(int y, int x)
 {
     //Stream the audio
     StreamEngine &streamEngine = StreamEngine::getInstance();
-    streamEngine.connexionToServer();
+    if(!streamEngine.connexionToServer())
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Server unreachable, please check your server settings"), QMessageBox::Ok);
+        return;
+    }
     streamEngine.playMusic(tableMusic->item(y,8)->text());
 
     //Update UI

@@ -100,6 +100,16 @@ void LiveAudioWindow::setupUi()
 
 void LiveAudioWindow::playLive()
 {
+    format.setSampleRate(8000);
+    format.setChannelCount(1);
+    format.setSampleSize(16);
+    format.setSampleType(QAudioFormat::SignedInt);
+    format.setByteOrder(QAudioFormat::LittleEndian);
+    format.setCodec("audio/pcm");
+
+    audioInfo = new AudioInfo(format, this);
+    connect(audioInfo, SIGNAL(update()), SLOT(refreshDisplay()));
+
     if(checkBoxRecord->isChecked())
     {
         QAudioEncoderSettings audioSettings;
@@ -111,6 +121,8 @@ void LiveAudioWindow::playLive()
         audioRecorder->setEncodingSettings(audioSettings, QVideoEncoderSettings(),"audio/mpeg, mpegversion=(int)1");
         audioRecorder->setOutputLocation(QUrl(QStandardPaths::locate(QStandardPaths::MusicLocation, QString(),QStandardPaths::LocateDirectory) + "Record_" + QDateTime::currentDateTime().toString() + ".mp3"));
         audioRecorder->record();
+
+        labelStatus->setText(tr("Recoding"));
     }
 
     //    StreamEngine& streamEngine = StreamEngine::getInstance();
@@ -120,7 +132,6 @@ void LiveAudioWindow::playLive()
     buttonStart->setEnabled(false);
     buttonStop->setEnabled(true);
     checkBoxRecord->setEnabled(false);
-    labelStatus->setText(tr("Recoding"));
     timer->start();
 }
 
@@ -179,6 +190,11 @@ void LiveAudioWindow::processBuffer(const QAudioBuffer& buffer)
     StreamEngine& streamEngine = StreamEngine::getInstance();
     streamEngine.sendDataToPlay(mp3Buffer,pcm_size);
 
+}
+
+void LiveAudioWindow::refreshDisplay()
+{
+    vuMeter->setLevel(audioInfo->level());
 }
 
 void LiveAudioWindow::updateStatus(QMediaRecorder::Status status)
