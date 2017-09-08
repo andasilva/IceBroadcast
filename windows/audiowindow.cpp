@@ -1,3 +1,10 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #include "audiowindow.h"
 #include <QtWidgets>
 #include "audio/songinfo.h"
@@ -191,7 +198,6 @@ void AudioWindow::listContentPlaylist(int playlistNumber)
         QString line = file.readLine();
         line.truncate(line.length() - 1);
         getAndShowInfoMusic(line);
-        qDebug() << "Line : " << line;
     }
 
     //Initialize UI after loading a new playlist
@@ -318,7 +324,6 @@ void AudioWindow::addPlaylistPressed()
 
         if(QFile::exists(path))
         {
-            qDebug() << "This playlist name already exits...";
             QMessageBox::warning(this,tr("Duplicate playlist name"),tr("This playlist name already exists... Write another playlist name."),QMessageBox::Ok);
         }
         else
@@ -329,7 +334,6 @@ void AudioWindow::addPlaylistPressed()
             if(file.open(QIODevice::ReadWrite))
             {
                 file.close();
-                qDebug() << "New playlist created: " << playlistName;
                 listPlaylist->clear();
                 loadPlaylistAvaible();
 
@@ -367,6 +371,8 @@ void AudioWindow::playPressed()
 
 void AudioWindow::songDoubleClick(int y, int x)
 {
+    Q_UNUSED(x);
+
     //Stream the audio
     StreamEngine &streamEngine = StreamEngine::getInstance();
     if(!streamEngine.connexionToServer())
@@ -451,12 +457,12 @@ void AudioWindow::nextPressed()
 
 void AudioWindow::tableClicked(int y, int x)
 {
+    Q_UNUSED(x);
     selectedSong = y;
 }
 
 void AudioWindow::updateCurrentPlaylist(int playlistNumber)
 {
-    qDebug() << "Current playlist number: " << playlistNumber;
     currentPlaylist = playlistNumber;
 
     if(playlistNumber >= 0)

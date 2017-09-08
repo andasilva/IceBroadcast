@@ -1,3 +1,10 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #include "dashboardwindow.h"
 #include <QtWidgets>
 #include "stream/streamengine.h"
@@ -50,10 +57,7 @@ void DashboardWindow::setupUi()
 void DashboardWindow::setLogo()
 {
     QSettings settings;
-
     logo->setPixmap(QPixmap(settings.value("logoPath").toString()));
-    qDebug() << "New logo setted: " << settings.value("logoPath").toString();
-
     logo->repaint();
 }
 

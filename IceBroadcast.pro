@@ -34,7 +34,6 @@ SOURCES += \
     windows/audiowindow.cpp \
     windows/livetvwindow.cpp \
     stream/audio/controleuraudio.cpp \
-    stream/livemanager.cpp \
     stream/streamengine.cpp \
     audio/audioinfo.cpp \
     stream/workerstream.cpp \
@@ -54,7 +53,6 @@ HEADERS += \
     windows/livetvwindow.h \
     stream/audio/controleuraudio.h \
     lib/shout.h \
-    stream/livemanager.h \
     stream/streamengine.h \
     audio/audioinfo.h \
     stream/workerstream.h \

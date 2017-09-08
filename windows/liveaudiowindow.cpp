@@ -1,3 +1,10 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #include "liveaudiowindow.h"
 #include "stream/streamengine.h"
 #include <lame/lame.h>
@@ -16,9 +23,6 @@ LiveAudioWindow::LiveAudioWindow(QWidget *parent) : QWidget(parent), device(QAud
     elapsedSeconds = 0;
 
     connect(timer, &QTimer::timeout, this, &LiveAudioWindow::updateTime);
-    connect(audioRecorder, &QAudioRecorder::durationChanged,this,&LiveAudioWindow::updateProgess);
-    connect(audioRecorder, &QAudioRecorder::stateChanged, this, &LiveAudioWindow::onStateChanged);
-    connect(audioProbe,&QAudioProbe::audioBufferProbed,this,&LiveAudioWindow::processBuffer);
 }
 
 void LiveAudioWindow::setupUi()
@@ -108,7 +112,6 @@ void LiveAudioWindow::initializeVuMeter()
     QAudioDeviceInfo info(device);
     if (!info.isFormatSupported(format))
     {
-        qWarning() << "Default format not supported - trying to use nearest";
         format = info.nearestFormat(format);
     }
 
@@ -156,9 +159,6 @@ void LiveAudioWindow::playLive()
 
     initializeVuMeter();
 
-    //    StreamEngine& streamEngine = StreamEngine::getInstance();
-    //    streamEngine.connexionToServer();
-
     //Update UI
     buttonStart->setEnabled(false);
     buttonStop->setEnabled(true);
@@ -193,6 +193,7 @@ void LiveAudioWindow::updateTime()
     time->display(dateTime.toString("mm:ss"));
 }
 
+//Unused function that try to convert PCM to MP3 on the fly
 void LiveAudioWindow::processBuffer(const QAudioBuffer& buffer)
 {
     const short int* data = buffer.data<short int>();
@@ -203,8 +204,7 @@ void LiveAudioWindow::processBuffer(const QAudioBuffer& buffer)
     short int pcm_buffer[pcm_size];
 
     for(int i = 0; i < pcm_size ; i++){
-        pcm_buffer[i] = 0;
-        qDebug() << data[i];
+        pcm_buffer[i] = data[i];
     }
 
     lame_t lame = lame_init();
@@ -225,20 +225,3 @@ void LiveAudioWindow::refreshDisplay()
 {
     vuMeter->setLevel(audioInfo->level());
 }
-
-void LiveAudioWindow::updateStatus(QMediaRecorder::Status status)
-{
-
-}
-
-void LiveAudioWindow::onStateChanged(QMediaRecorder::State state)
-{
-
-}
-
-void LiveAudioWindow::updateProgess(qint64 pos)
-{
-
-}
-
-

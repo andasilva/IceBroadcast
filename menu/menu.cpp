@@ -1,9 +1,16 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #include "menu.h"
-#include "./../config.h"
+#include "config.h"
 
 Menu::Menu(QWidget *parent) : QWidget(parent)
 {
-    // Load StyleSheet
+    //Load StyleSheet
     QFile file(":/ressources/medias/qss/menu.qss");
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
@@ -51,11 +58,11 @@ Menu::Menu(QWidget *parent) : QWidget(parent)
 void Menu::updateButtonCurrentlySelected(ButtonMenu *buttonMenu)
 {
     //Only update if the new button clicked is different than the button selected
-    if(buttonMenu->getIdButton()!=buttonCurrentlySelected->getIdButton()){
+    if(buttonMenu->getIdButton()!=buttonCurrentlySelected->getIdButton())
+    {
         buttonCurrentlySelected->unhighlightIcon();
         emit(hideWidgetWindow(buttonCurrentlySelected->getIdButton()));
         this->buttonCurrentlySelected = buttonMenu;
         emit(showWidgetWindow(buttonMenu->getIdButton()));
-
     }
 }

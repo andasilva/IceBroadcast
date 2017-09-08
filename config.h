@@ -1,6 +1,12 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #ifndef CONFIG_H
 #define CONFIG_H
-
 
 //Const for the menu
 const int spaceBetweenLogoAndFirstButton = 130;

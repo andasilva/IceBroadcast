@@ -1,3 +1,10 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #include "statchart.h"
 #include <QtSql>
 #include <QThread>
@@ -17,7 +24,9 @@ StatChart::StatChart(QWidget *parent) : QWidget(parent)
     //connectToDatabase();
     QFuture<void> future = QtConcurrent::run(connectToDatabase);
     QSqlDatabase db =  QSqlDatabase::database();
-    if(db.isOpen()){
+
+    if(db.isOpen())
+    {
         getStats();
     }
 
@@ -44,7 +53,6 @@ StatChart::StatChart(QWidget *parent) : QWidget(parent)
     chartView->setFixedHeight(400);
 
     mainLayout->addWidget(chartView);
-
     setLayout(mainLayout);
 
     timer = new QTimer(this);
@@ -56,8 +64,11 @@ void StatChart::getStats()
 {
     series->clear();
     QSqlQuery query ;
-    if(query.exec("SELECT * FROM statistics ORDER BY date DESC LIMIT 7")){
-        while(query.next()){
+
+    if(query.exec("SELECT * FROM statistics ORDER BY date DESC LIMIT 7"))
+    {
+        while(query.next())
+        {
             QString date = query.value(0).toString() ;
             int number = query.value(1).toInt();
 
@@ -66,6 +77,7 @@ void StatChart::getStats()
             time.setTime(QTime::fromString(date.remove(":").right(6).left(4),"hhmm"));
             series->append(time.toMSecsSinceEpoch(),number);
         }
+
         chart->removeSeries(series);
         chart->addSeries(series);
         chart->removeAxis(axisX);
@@ -85,39 +97,46 @@ void StatChart::getStats()
         axisY->setTitleText("Listeners count");
         chart->addAxis(axisY, Qt::AlignLeft);
         series->attachAxis(axisY);
-    } else
-        qDebug() << "La requête a échoué";
+    }
+    else
+    {
+        qDebug() << "Request has failed";
+    }
 }
 
 bool StatChart::connectToDatabase()
 {
     QSqlDatabase db =  QSqlDatabase::database();
-    if(!db.isOpen()){
+    if(!db.isOpen())
+    {
         QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
         db.setHostName("192.168.1.42");
         db.setPort(3306);
         db.setDatabaseName("icebroadcast");
         db.setUserName("root");
         db.setPassword("pa$$w0rd"); // Don't worry, it's only a password for local test :-)
-        if(db.open()){
+
+        if(db.open())
+        {
             qDebug() << "Connexion to database... Ok" ;
             return true;
-        }else{
-            qDebug() << "Connexion to database... Error: " << db.lastError();
-            return false;
         }
     }
+
+    qDebug() << "Connexion to database... Error: " << db.lastError();
+    return false;
 }
 
 void StatChart::updateDatabase()
 {
-    qDebug() << "Update stats";
     QSqlDatabase db =  QSqlDatabase::database();
-    if(db.isOpen()){
+    if(db.isOpen())
+    {
         getStats();
-    }else{
+    }
+    else
+    {
         qDebug() << "Database not open";
         QFuture<void> future = QtConcurrent::run(connectToDatabase);
     }
-    qDebug() << "End of update";
 }

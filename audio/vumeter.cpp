@@ -12,6 +12,7 @@ VuMeter::VuMeter(QWidget *parent) : QWidget(parent)
 
 void VuMeter::paintEvent(QPaintEvent* event)
 {
+    Q_UNUSED(event);
     QPainter painter(this);
 
     painter.setPen(Qt::black);

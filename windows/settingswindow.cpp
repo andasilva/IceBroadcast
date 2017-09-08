@@ -1,3 +1,10 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #include "settingswindow.h"
 #include <QtMultimedia>
 
@@ -17,7 +24,6 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
 
     //labels
     labelServerAdress = new QLabel("Server adress:");
-    //    labelServerAdress->setFixedWidth(100);
     labelUsername = new QLabel("Username:");
     labelPassword = new QLabel("Password:");
     labelMountpoint = new QLabel("Mountpoint:");
@@ -26,20 +32,33 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     //inputs
     textServerAdress = new QLineEdit;
     if(settings->value("server").isValid())
+    {
         textServerAdress->setText(settings->value("server").toString());
+    }
+
     textUsername = new QLineEdit;
     if(settings->value("username").isValid())
+    {
         textUsername->setText(settings->value("username").toString());
+    }
+
     textPassword = new QLineEdit;
-    //textPassword->setEchoMode(QLineEdit::Password);
     if(settings->value("password").isValid())
+    {
         textPassword->setText(settings->value("password").toString());
+    }
+
     textMountpoint = new QLineEdit;
     if(settings->value("mountpoint").isValid())
+    {
         textMountpoint->setText(settings->value("mountpoint").toString());
+    }
+
     textPort = new QLineEdit;
     if(settings->value("port").isValid())
+    {
         textPort->setText(settings->value("port").toString());
+    }
 
     //layouts
     QVBoxLayout *layoutServer = new QVBoxLayout;
@@ -49,12 +68,10 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     gridLayout->addWidget(textServerAdress,0,1);
     gridLayout->addWidget(labelPort,0,2);
     gridLayout->addWidget(textPort,0,3);
-
     gridLayout->addWidget(labelUsername,1,0);
     gridLayout->addWidget(textUsername,1,1);
     gridLayout->addWidget(labelPassword,1,2);
     gridLayout->addWidget(textPassword,1,3);
-
     gridLayout->addWidget(labelMountpoint,2,0);
     gridLayout->addWidget(textMountpoint,2,1);
 
@@ -68,29 +85,33 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     labelAudioInputSource = new QLabel("Input source:");
     labelAudioOutputSource = new QLabel("Output source:");
 
-
     QHBoxLayout *layoutAudio = new QHBoxLayout;
     layoutAudio->addWidget(labelAudioInputSource);
 
     //Get Input Audio Devices Avaible on computer
     listAudioInput = new QComboBox;
     listAudioInput->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
-
     QList<QAudioDeviceInfo> audioDevicesInput = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
 
     //display all devices and set one as default if saved in settings
-    if(settings->value("audioInput").isValid()){
+    if(settings->value("audioInput").isValid())
+    {
         int valueInSettings = 0;
 
-        for(int i = 0; i < audioDevicesInput.length(); i++){
+        for(int i = 0; i < audioDevicesInput.length(); i++)
+        {
             QString dev = audioDevicesInput.at(i).deviceName();
             listAudioInput->addItem(dev);
-            if(!dev.compare(settings->value("audioInput").toString())){
+            if(!dev.compare(settings->value("audioInput").toString()))
+            {
                 valueInSettings = i;
             }
         }
+
         listAudioInput->setCurrentIndex(valueInSettings);
-    }else{
+    }
+    else
+    {
         foreach(QAudioDeviceInfo dev, audioDevicesInput)
         {
             listAudioInput->addItem(dev.deviceName());
@@ -111,7 +132,6 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
 
     layoutAudio->addWidget(labelAudioOutputSource);
     layoutAudio->addWidget(listAudioOuput);
-
 
     /*****************/
     /* Video Section */
@@ -135,23 +155,28 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
 
     layoutVideo->addWidget(listVideoInput);
 
-
     /***********************/
     /* Preferences Section */
     /***********************/
+
     //labels
     labelThemes = new QLabel("Themes:");
     listTheme = new QComboBox;
     listTheme->addItem("Dark Theme");
     labelLogoPathTitle = new QLabel("Logo path:");
     labelLogoPath = new QLabel("No logo selected");
+
     if(settings->value("logoPath").isValid())
+    {
         labelLogoPath->setText(settings->value("logoPath").toString());
+    }
+
     labelLogoPath->setStyleSheet("border: 1px solid");
     buttonSelectLogoPath = new QPushButton(tr("Select file"));
-
     listTheme->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
     labelLogoPath->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+
+    buttonSave = new QPushButton("Save");
 
     connect(buttonSelectLogoPath,&QPushButton::clicked,this,&SettingsWindow::loadLogoFile);
 
@@ -161,16 +186,6 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent)
     layoutPreferences->addWidget(labelLogoPathTitle);
     layoutPreferences->addWidget(labelLogoPath);
     layoutPreferences->addWidget(buttonSelectLogoPath);
-
-
-
-
-
-    //
-
-
-
-    buttonSave = new QPushButton("Save");
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(labelServer);
@@ -207,20 +222,11 @@ void SettingsWindow::saveSettings()
     settings->setValue("theme",listTheme->currentText());
 
     //Update Logo if necessary
-    if(labelLogoPath->text().compare(settings->value("logoPath").toString())){
+    if(labelLogoPath->text().compare(settings->value("logoPath").toString()))
+    {
         settings->setValue("logoPath",labelLogoPath->text());
         emit logoUpdated();
     }
-
-
-
-    /*
-    QMessageBox confirmationMessage;
-    confirmationMessage.setText("Settings Saved");
-    confirmationMessage.setIcon(QMessageBox::Information);
-    confirmationMessage.exec();
-    confirmationMessage.button(QMessageBox::Ok)->animateClick(1);
-*/
 }
 
 void SettingsWindow::loadLogoFile()
@@ -229,9 +235,11 @@ void SettingsWindow::loadLogoFile()
     QString fileName = QFileDialog::getOpenFileName(this,tr("Open Image"),QStandardPaths::locate(QStandardPaths::PicturesLocation, QString(),QStandardPaths::LocateDirectory),tr("Image Files (*.png *.jpg)"));
 
     if(fileName.isEmpty())
+    {
         return;
-    else{
-       labelLogoPath->setText(fileName);
     }
-
+    else
+    {
+        labelLogoPath->setText(fileName);
+    }
 }

@@ -1,3 +1,10 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #include "livetvwindow.h"
 #include <QtWidgets>
 
@@ -67,11 +74,13 @@ void LiveTvWindow::setupUi()
 
 void LiveTvWindow::enablePreview()
 {
-    if(!isCameraPreview){
+    if(!isCameraPreview)
+    {
         labelSpace->hide();
         QSettings settings;
 
-        if(settings.value("videoInput").isValid()){
+        if(settings.value("videoInput").isValid())
+        {
             camera= new QCamera(settings.value("server").toByteArray(),this);
             camera->setCaptureMode(QCamera::CaptureViewfinder) ;
             camera->setViewfinder(videoWidget) ;
@@ -79,7 +88,9 @@ void LiveTvWindow::enablePreview()
             isCameraPreview = true;
             videoWidget->show();
         }
-    }else{
+    }
+    else
+    {
         camera->stop();
         isCameraPreview = false;
         labelSpace->show();

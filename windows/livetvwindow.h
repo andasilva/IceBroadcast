@@ -1,3 +1,9 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
 #ifndef LIVETVWINDOW_H
 #define LIVETVWINDOW_H
 

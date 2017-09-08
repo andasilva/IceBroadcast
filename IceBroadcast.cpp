@@ -1,10 +1,16 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #include "IceBroadcast.h"
 #include "config.h"
 #include "lib/shout.h"
 #include "stream/streamengine.h"
 
-IceBroadcast::IceBroadcast(QWidget *parent)
-    : QWidget(parent)
+IceBroadcast::IceBroadcast(QWidget *parent) : QWidget(parent)
 {
     // Load StyleSheet
     QFile file(":/ressources/medias/qss/default.qss");
@@ -18,7 +24,6 @@ IceBroadcast::IceBroadcast(QWidget *parent)
 
     QVBoxLayout *contentLayout = new QVBoxLayout;
     mainLayout->addLayout(contentLayout);
-
 
     // Create the menu and add it
     this->mainMenu = new Menu();
@@ -47,10 +52,6 @@ IceBroadcast::IceBroadcast(QWidget *parent)
     //Connections
     connect(audioWindow, SIGNAL(playingSongChanged(QString)), dashboardWindow, SLOT(updateMusicBeingPlayed(QString)));
     connect(settingsWindow,&SettingsWindow::logoUpdated,dashboardWindow,&DashboardWindow::setLogo);
-    //ONly for test
-    /*StreamEngine& audioControler = StreamEngine::getInstance();
-    audioControler.connexionToServer();*/
-
 }
 
 void IceBroadcast::showWidgetWindow(int idButton)
@@ -96,7 +97,6 @@ void IceBroadcast::hideWidgetWindow(int idButton)
         break;
     }
 }
-
 
 IceBroadcast::~IceBroadcast()
 {

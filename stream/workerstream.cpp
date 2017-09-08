@@ -1,3 +1,10 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #include "workerstream.h"
 #include "streamengine.h"
 
@@ -13,13 +20,9 @@ void WorkerStream::setAborted(bool value)
 
 void WorkerStream::start()
 {
-    qDebug() << "Stream started";
     StreamEngine &streamEngine = StreamEngine::getInstance();
     streamEngine.connexionToServer();
-
     shout_t* connexion = streamEngine.getConnexion();
-
-
     unsigned char buff[4096];
 
     pFile = fopen (streamEngine.getCurrentlyPlaying()->toStdString().c_str() , "r");
@@ -27,19 +30,22 @@ void WorkerStream::start()
 
     long read, ret;
 
-    while (!aborted) {
+    while (!aborted)
+    {
         read = fread(buff, 1, sizeof(buff), pFile);
-        qDebug() << read;
-        if (read > 0) {
+
+        if (read > 0)
+        {
             ret = shout_send(connexion, buff, read);
-            if (ret != SHOUTERR_SUCCESS) {
+            if (ret != SHOUTERR_SUCCESS)
+            {
                 printf("DEBUG: Send error: %s\n", shout_get_error(connexion));
                 break;
             }
         }
         shout_sync(connexion);
     }
-    qDebug() << "End of the song...";
+
     streamEngine.setIsRunning(false);
     streamEngine.getThread()->exit();
     shout_close(connexion);

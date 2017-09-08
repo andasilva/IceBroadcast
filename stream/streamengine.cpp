@@ -1,9 +1,16 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #include "streamengine.h"
 #include "lib/shout.h"
 #include "workerstream.h"
 #include <QSettings>
 
-StreamEngine::StreamEngine(QObject *parent) :QObject(parent)
+StreamEngine::StreamEngine(QObject *parent) : QObject(parent)
 {
     currentlyPlaying = new QString("");
 
@@ -52,7 +59,8 @@ bool StreamEngine::getIsRunning() const
 void StreamEngine::sendDataToPlay(const unsigned char *data, size_t length)
 {
     long ret = shout_send(connexion, data, length);
-    if (ret != SHOUTERR_SUCCESS) {
+    if (ret != SHOUTERR_SUCCESS)
+    {
         printf("DEBUG: Send error: %s\n", shout_get_error(connexion));
     }
 
@@ -66,12 +74,12 @@ void StreamEngine::stopMusic()
 
 bool StreamEngine::connexionToServer()
 {
-    if(!isRunning){
+    if(!isRunning)
+    {
         connexion = shout_new();
-        qDebug() << "Trying to connect to server...";
         QSettings settings;
 
-        qDebug() << settings.value("username").toString().toStdString().c_str()  << settings.value("username").toString().toStdString().c_str() << settings.value("password").toString().toStdString().c_str() << settings.value("mountpoint").toString().toStdString().c_str() << settings.value("server").toString().toStdString().c_str();
+        //qDebug() << settings.value("username").toString().toStdString().c_str()  << settings.value("username").toString().toStdString().c_str() << settings.value("password").toString().toStdString().c_str() << settings.value("mountpoint").toString().toStdString().c_str() << settings.value("server").toString().toStdString().c_str();
         shout_set_user(connexion,settings.value("username").toString().toStdString().c_str());
         shout_set_password(connexion, settings.value("password").toString().toStdString().c_str());
         shout_set_mount(connexion, settings.value("mountpoint").toString().toStdString().c_str());
@@ -81,11 +89,11 @@ bool StreamEngine::connexionToServer()
     }
 
     int resultConnexion = shout_open(connexion);
-    switch(resultConnexion){
+
+    switch(resultConnexion)
+    {
     case SHOUTERR_SUCCESS:
-        qDebug() << "login sucessfull!";
         isRunning = true;
-        //timerCheckConnexion->start(1500); //TODO: get 15000 from server file?
         emit connexionEstablished(true);
         return true;
         break;
@@ -104,9 +112,8 @@ bool StreamEngine::connexionToServer()
 
 void StreamEngine::checkConnexion()
 {
-    qDebug() << "Check if connexion active: " << shout_get_connected(connexion);
-
-    if(shout_get_connected(connexion) != SHOUTERR_CONNECTED){
+    if(shout_get_connected(connexion) != SHOUTERR_CONNECTED)
+    {
         qDebug() << "Connexion interrupted";
         timerCheckConnexion->stop();
         emit connexionEstablished(false);
@@ -118,14 +125,16 @@ void StreamEngine::playMusic(QString music)
     qDebug() << "Play music: " << music ;
     currentlyPlaying = new QString(music);
 
-    if(!thread->isRunning()){
-        qDebug() << "New thread created";
+    if(!thread->isRunning())
+    {
         thread = new QThread;
         worker = new WorkerStream;
         worker->moveToThread(thread);
         QMetaObject::invokeMethod(worker,"start");
         thread->start();
-    }else{
+    }
+    else
+    {
         qDebug() << "Play anoter song....";
         worker->playAnotherSong(music);
     }

@@ -1,3 +1,10 @@
+/*
+ * IceBroadcast
+ * P2 Project He-Arc
+ * André Neto Da Silva & Axel Rieben
+ * 8 september 2017
+ */
+
 #ifndef LIVEAUDIOWINDOW_H
 #define LIVEAUDIOWINDOW_H
 
@@ -49,9 +56,6 @@ private slots:
     void stopLive();
 
     void updateTime();
-    void updateStatus(QMediaRecorder::Status status);
-    void onStateChanged(QMediaRecorder::State state);
-    void updateProgess(qint64 pos);
 };
 
 #endif // LIVEAUDIOWINDOW_H
